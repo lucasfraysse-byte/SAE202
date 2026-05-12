@@ -5,13 +5,12 @@ import iut.info.polynome.Polynome;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests unitaires de la classe {@link Polynome} — écrits en TDD.
+ * Tests unitaires de Polynome.
  */
 class TestPolynome {
 
@@ -19,8 +18,12 @@ class TestPolynome {
 
     @Test
     void constructionStockeLesCoefficients() {
-        Polynome p = new Polynome(Arrays.asList(
-                new Monome(1.0, 2), new Monome(3.0, 1), new Monome(3.0, 0)));
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(1.0, 2));
+        termes.add(new Monome(3.0, 1));
+        termes.add(new Monome(3.0, 0));
+        Polynome p = new Polynome(termes);
+
         assertEquals(1.0, p.getCoefficient(2), 1e-9);
         assertEquals(3.0, p.getCoefficient(1), 1e-9);
         assertEquals(3.0, p.getCoefficient(0), 1e-9);
@@ -34,7 +37,11 @@ class TestPolynome {
     @Test
     void constructionFusionneTermesDeMemeExposant() {
         // 2x + 3x = 5x
-        Polynome p = new Polynome(Arrays.asList(new Monome(2.0, 1), new Monome(3.0, 1)));
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(2.0, 1));
+        termes.add(new Monome(3.0, 1));
+        Polynome p = new Polynome(termes);
+
         assertEquals(5.0, p.getCoefficient(1), 1e-9);
         assertEquals(1, p.getDegre());
     }
@@ -42,8 +49,12 @@ class TestPolynome {
     @Test
     void constructionElimineLesZerosAptesFusion() {
         // 3x + (-3x) + 1  =>  le terme x disparaît
-        Polynome p = new Polynome(Arrays.asList(
-                new Monome(3.0, 1), new Monome(-3.0, 1), new Monome(1.0, 0)));
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(3.0, 1));
+        termes.add(new Monome(-3.0, 1));
+        termes.add(new Monome(1.0, 0));
+        Polynome p = new Polynome(termes);
+
         assertEquals(0, p.getDegre());
         assertEquals(0.0, p.getCoefficient(1), 1e-9);
         assertEquals(1.0, p.getCoefficient(0), 1e-9);
@@ -51,12 +62,16 @@ class TestPolynome {
 
     @Test
     void constructionTrieParDegreDécroissant() {
-        Polynome p = new Polynome(Arrays.asList(
-                new Monome(1.0, 0), new Monome(3.0, 2), new Monome(2.0, 1)));
-        List<Monome> termes = p.getTermes();
-        assertEquals(2, termes.get(0).getExposant());
-        assertEquals(1, termes.get(1).getExposant());
-        assertEquals(0, termes.get(2).getExposant());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(1.0, 0));
+        termes.add(new Monome(3.0, 2));
+        termes.add(new Monome(2.0, 1));
+        Polynome p = new Polynome(termes);
+
+        List<Monome> liste = p.getTermes();
+        assertEquals(2, liste.get(0).getExposant());
+        assertEquals(1, liste.get(1).getExposant());
+        assertEquals(0, liste.get(2).getExposant());
     }
 
     @Test
@@ -68,8 +83,10 @@ class TestPolynome {
 
     @Test
     void degreRetourneLeDegreMax() {
-        assertEquals(5, new Polynome(Arrays.asList(
-                new Monome(1.0, 5), new Monome(2.0, 3))).getDegre());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(1.0, 5));
+        termes.add(new Monome(2.0, 3));
+        assertEquals(5, new Polynome(termes).getDegre());
     }
 
     @Test
@@ -79,14 +96,19 @@ class TestPolynome {
 
     @Test
     void degrePolynomeConstantEstZero() {
-        assertEquals(0, new Polynome(Arrays.asList(new Monome(7.0, 0))).getDegre());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(7.0, 0));
+        assertEquals(0, new Polynome(termes).getDegre());
     }
 
     // ── Coefficient ───────────────────────────────────────────────────────────
 
     @Test
     void getCoefficientAbsentRetourneZero() {
-        Polynome p = new Polynome(Arrays.asList(new Monome(3.0, 2)));
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(3.0, 2));
+        Polynome p = new Polynome(termes);
+
         assertEquals(0.0, p.getCoefficient(5), 1e-9);
         assertEquals(0.0, p.getCoefficient(0), 1e-9);
     }
@@ -95,16 +117,19 @@ class TestPolynome {
 
     @Test
     void toStringPolynomeComplet() {
-        Polynome p = new Polynome(Arrays.asList(
-                new Monome(1.0, 2), new Monome(3.0, 1), new Monome(3.0, 0)));
-        assertEquals("X^2 + 3X + 3", p.toString());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(1.0, 2));
+        termes.add(new Monome(3.0, 1));
+        termes.add(new Monome(3.0, 0));
+        assertEquals("X^2 + 3X + 3", new Polynome(termes).toString());
     }
 
     @Test
     void toStringAvecCoefficientsNegatifs() {
-        Polynome p = new Polynome(Arrays.asList(
-                new Monome(-1.0, 2), new Monome(-3.0, 1)));
-        assertEquals("-X^2 - 3X", p.toString());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(-1.0, 2));
+        termes.add(new Monome(-3.0, 1));
+        assertEquals("-X^2 - 3X", new Polynome(termes).toString());
     }
 
     @Test
@@ -114,13 +139,17 @@ class TestPolynome {
 
     @Test
     void toStringAvecCoefficientsDecimaux() {
-        Polynome p = new Polynome(Arrays.asList(new Monome(3.5, 2), new Monome(2.0, 0)));
-        assertEquals("3.5X^2 + 2", p.toString());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(3.5, 2));
+        termes.add(new Monome(2.0, 0));
+        assertEquals("3.5X^2 + 2", new Polynome(termes).toString());
     }
 
     @Test
     void toStringPolynomeConstant() {
-        assertEquals("5", new Polynome(Arrays.asList(new Monome(5.0, 0))).toString());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(5.0, 0));
+        assertEquals("5", new Polynome(termes).toString());
     }
 
     // ── Parser ────────────────────────────────────────────────────────────────
@@ -174,7 +203,6 @@ class TestPolynome {
 
     @Test
     void parserTermeSeulSansCoefficient() {
-        // "x" seul doit donner 1*x^1
         Polynome p = Polynome.parser("x");
         assertEquals(1, p.getDegre());
         assertEquals(1.0, p.getCoefficient(1), 1e-9);
@@ -194,6 +222,8 @@ class TestPolynome {
 
     @Test
     void estNulRetourneFalsePourPolynomeNonVide() {
-        assertFalse(new Polynome(Arrays.asList(new Monome(1.0, 2))).estNul());
+        List<Monome> termes = new ArrayList<>();
+        termes.add(new Monome(1.0, 2));
+        assertFalse(new Polynome(termes).estNul());
     }
 }

@@ -14,7 +14,7 @@ public class Main {
         System.out.println("==============================");
         System.out.println("   Bibliotheque IR[X] v1.0");
         System.out.println("==============================");
-        System.out.println("Format accepte : x^2 + 3x - 5   |   x^30+x^9");
+        System.out.println("Format accepte : x^2 + 3x - 5   |   x^30 + x^9");
         System.out.println("Taper 'fin' pour quitter.");
         System.out.println();
 
