@@ -3,11 +3,12 @@ package iut.info.polynome;
 import java.util.Scanner;
 
 /**
- * Interface terminale de la bibliothèque IR[X].
+ * Interface terminale de la bibliothèque IR[X] — prototype fin d'itération 2.
  *
- * <p>Permet de saisir des polynômes en format naturel et d'effectuer
- * les opérations suivantes : addition, multiplication, division euclidienne,
- * ainsi que l'affichage des caractéristiques d'un polynôme.</p>
+ * <p>Permet de saisir des polynômes en format naturel et d'exercer l'ensemble
+ * des fonctionnalités disponibles : informations, opérations arithmétiques
+ * (addition, multiplication, division euclidienne, produit scalaire) et
+ * interrogation du coefficient d'un terme.</p>
  *
  * <p>Format d'entrée accepté : {@code x^2 + 3x - 5} | {@code x^30 + x^9}</p>
  */
@@ -37,15 +38,18 @@ public class Main {
                     afficherInfosPolynome(scanner);
                     break;
                 case "2":
-                    effectuerAddition(scanner);
+                    afficherCoefficient(scanner);
                     break;
                 case "3":
-                    effectuerMultiplication(scanner);
+                    effectuerAddition(scanner);
                     break;
                 case "4":
-                    effectuerDivision(scanner);
+                    effectuerMultiplication(scanner);
                     break;
                 case "5":
+                    effectuerDivision(scanner);
+                    break;
+                case "6":
                     effectuerProduitScalaire(scanner);
                     break;
                 case "0":
@@ -76,17 +80,19 @@ public class Main {
     private static void afficherMenu() {
         System.out.println("--- Menu ---");
         System.out.println("  1. Afficher les infos d'un polynome");
-        System.out.println("  2. Additionner deux polynomes");
-        System.out.println("  3. Multiplier deux polynomes");
-        System.out.println("  4. Diviser deux polynomes (division euclidienne)");
-        System.out.println("  5. Multiplier un polynome par un scalaire");
+        System.out.println("  2. Obtenir le coefficient d'un terme");
+        System.out.println("  3. Additionner deux polynomes");
+        System.out.println("  4. Multiplier deux polynomes");
+        System.out.println("  5. Diviser deux polynomes (division euclidienne)");
+        System.out.println("  6. Multiplier un polynome par un scalaire");
         System.out.println("  0. Quitter");
     }
 
     // ── Actions du menu ───────────────────────────────────────────────────────
 
     /**
-     * Saisit un polynôme et affiche son degré et son nombre de termes.
+     * Saisit un polynôme et affiche sa représentation, son degré, son nombre
+     * de termes et s'il est nul.
      *
      * @param scanner le scanner de la console
      */
@@ -95,9 +101,37 @@ public class Main {
         if (p == null) {
             return;
         }
-        System.out.println("  p(x)   = " + p);
-        System.out.println("  Degre  : " + p.getDegre());
-        System.out.println("  Termes : " + p.getTermes().size());
+        System.out.println("  p(x)    = " + p);
+        System.out.println("  Degre   : " + p.getDegre());
+        System.out.println("  Termes  : " + p.getTermes().size());
+        System.out.println("  Est nul : " + p.estNul());
+    }
+
+    /**
+     * Saisit un polynôme et un exposant, puis affiche le coefficient
+     * du terme correspondant (0.0 si absent).
+     *
+     * @param scanner le scanner de la console
+     */
+    private static void afficherCoefficient(Scanner scanner) {
+        Polynome p = saisirPolynome(scanner, "P");
+        if (p == null) {
+            return;
+        }
+        System.out.print("  Exposant du terme recherche : ");
+        String ligneExp = scanner.nextLine().trim();
+        try {
+            int exp = Integer.parseInt(ligneExp);
+            if (exp < 0) {
+                System.out.println("  Erreur : l'exposant doit etre positif ou nul.");
+                return;
+            }
+            double coeff = p.getCoefficient(exp);
+            System.out.println("  p(x) = " + p);
+            System.out.println("  Coefficient de x^" + exp + " : " + formatNombre(coeff));
+        } catch (NumberFormatException e) {
+            System.out.println("  Erreur : exposant invalide, veuillez entrer un entier.");
+        }
     }
 
     /**
@@ -115,9 +149,9 @@ public class Main {
             return;
         }
         Polynome somme = p.additionner(q);
-        System.out.println("  p(x) = " + p);
-        System.out.println("  q(x) = " + q);
-        System.out.println("  p(x) + q(x) = " + somme);
+        System.out.println("  p(x)         = " + p);
+        System.out.println("  q(x)         = " + q);
+        System.out.println("  p(x) + q(x)  = " + somme);
     }
 
     /**
@@ -135,16 +169,14 @@ public class Main {
             return;
         }
         Polynome produit = p.multiplier(q);
-        System.out.println("  p(x) = " + p);
-        System.out.println("  q(x) = " + q);
-        System.out.println("  p(x) * q(x) = " + produit);
+        System.out.println("  p(x)         = " + p);
+        System.out.println("  q(x)         = " + q);
+        System.out.println("  p(x) * q(x)  = " + produit);
     }
 
     /**
      * Saisit deux polynômes, effectue la division euclidienne du premier par
-     * le second et affiche le quotient et le reste.
-     *
-     * <p>Rappel : {@code P = Q * quotient + reste}</p>
+     * le second et affiche le quotient, le reste et la vérification.
      *
      * @param scanner le scanner de la console
      */
@@ -159,11 +191,11 @@ public class Main {
         }
         try {
             Polynome[] resultat = p.diviser(q);
-            System.out.println("  p(x) = " + p);
-            System.out.println("  q(x) = " + q);
-            System.out.println("  Quotient : " + resultat[0]);
-            System.out.println("  Reste    : " + resultat[1]);
-            System.out.println("  Verification : q * quotient + reste = "
+            System.out.println("  p(x)      = " + p);
+            System.out.println("  q(x)      = " + q);
+            System.out.println("  Quotient  : " + resultat[0]);
+            System.out.println("  Reste     : " + resultat[1]);
+            System.out.println("  Verification (q * quotient + reste) : "
                     + q.multiplier(resultat[0]).additionner(resultat[1]));
         } catch (IllegalArgumentException e) {
             System.out.println("  Erreur : " + e.getMessage());
@@ -186,37 +218,24 @@ public class Main {
         try {
             double scalaire = Double.parseDouble(ligneScalaire);
             Polynome resultat = p.multiplierParScalaire(scalaire);
-            System.out.println("  p(x) = " + p);
-            System.out.println("  Scalaire = " + formatNombre(scalaire));
-            System.out.println("  p(x) * scalaire = " + resultat);
+            System.out.println("  p(x)             = " + p);
+            System.out.println("  Scalaire         = " + formatNombre(scalaire));
+            System.out.println("  p(x) * scalaire  = " + resultat);
         } catch (NumberFormatException e) {
-            System.out.println("  Erreur : scalaire invalide, veuillez entrer un nombre réel.");
+            System.out.println("  Erreur : scalaire invalide, veuillez entrer un nombre reel.");
         } catch (IllegalArgumentException e) {
             System.out.println("  Erreur : " + e.getMessage());
         }
     }
 
-    /**
-     * Formate un scalaire pour l'affichage : entier si valeur entière, décimal sinon.
-     *
-     * @param v la valeur à formater
-     * @return la représentation textuelle
-     */
-    private static String formatNombre(double v) {
-        if (v == Math.floor(v) && !Double.isInfinite(v)) {
-            return String.valueOf((long) v);
-        }
-        return String.valueOf(v);
-    }
-
-    // ── Utilitaire de saisie ──────────────────────────────────────────────────
+    // ── Utilitaires ───────────────────────────────────────────────────────────
 
     /**
-     * Invite l'utilisateur à saisir un polynôme et retourne le polynôme parsé.
-     * En cas d'expression invalide, affiche le message d'erreur et retourne {@code null}.
+     * Invite l'utilisateur à saisir un polynôme et retourne le polynôme parsé,
+     * ou {@code null} en cas de saisie invalide.
      *
      * @param scanner le scanner de la console
-     * @param nom     le nom du polynôme à afficher dans l'invite (ex. {@code "P"})
+     * @param nom     le nom du polynôme affiché dans l'invite (ex. {@code "P"})
      * @return le polynôme parsé, ou {@code null} si la saisie est invalide
      */
     private static Polynome saisirPolynome(Scanner scanner, String nom) {
@@ -228,5 +247,18 @@ public class Main {
             System.out.println("  Erreur de saisie : " + e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Formate un nombre réel : entier si la valeur est entière, décimal sinon.
+     *
+     * @param v la valeur à formater
+     * @return la représentation textuelle
+     */
+    private static String formatNombre(double v) {
+        if (v == Math.floor(v) && !Double.isInfinite(v)) {
+            return String.valueOf((long) v);
+        }
+        return String.valueOf(v);
     }
 }

@@ -1,7 +1,7 @@
 package iut.info.polynome;
 
 /**
- * Représente un terme non nul d'un polynôme : coefficient * x^exposant.
+ * Représente un terme non nul d'un polynôme : {@code coefficient * x^exposant}.
  * Un monôme est immuable. Son coefficient ne peut pas être nul
  * et son exposant ne peut pas être négatif.
  */
@@ -13,6 +13,8 @@ public class Monome {
     /**
      * Construit un monôme avec le coefficient et l'exposant donnés.
      *
+     * @param coefficient le coefficient (non nul)
+     * @param exposant    l'exposant (non négatif)
      * @throws IllegalArgumentException si le coefficient est nul ou l'exposant négatif
      */
     public Monome(double coefficient, int exposant) {
@@ -26,16 +28,21 @@ public class Monome {
         this.exposant = exposant;
     }
 
+    /** @return le coefficient de ce monôme */
     public double getCoefficient() {
         return coefficient;
     }
 
+    /** @return l'exposant de ce monôme */
     public int getExposant() {
         return exposant;
     }
 
     /**
-     * Évalue ce monôme en valeurX : coefficient * valeurX^exposant.
+     * Évalue ce monôme en {@code valeurX} : {@code coefficient * valeurX^exposant}.
+     *
+     * @param valeurX la valeur de x
+     * @return le résultat de l'évaluation
      */
     public double evaluer(double valeurX) {
         return coefficient * Math.pow(valeurX, exposant);
@@ -43,9 +50,10 @@ public class Monome {
 
     /**
      * Retourne le produit de ce monôme par un autre monôme.
-     * Les coefficients sont multipliés et les exposants additionnés.
      *
-     * @throws IllegalArgumentException si autre est null
+     * @param autre le monôme multiplicateur (non {@code null})
+     * @return un nouveau monôme résultat du produit
+     * @throws IllegalArgumentException si {@code autre} est {@code null}
      */
     public Monome multiplier(Monome autre) {
         if (autre == null) {
@@ -57,6 +65,8 @@ public class Monome {
     /**
      * Retourne un nouveau monôme dont le coefficient est multiplié par le facteur donné.
      *
+     * @param facteur le facteur scalaire (non nul)
+     * @return un nouveau monôme résultat de la multiplication
      * @throws IllegalArgumentException si le facteur est nul
      */
     public Monome multiplierParScalaire(double facteur) {
@@ -67,13 +77,15 @@ public class Monome {
     }
 
     /**
-     * Retourne le monôme dérivé : (coefficient * exposant) * x^(exposant-1).
+     * Retourne le monôme dérivé : {@code (coefficient * exposant) * x^(exposant - 1)}.
      *
-     * @throws IllegalStateException si l'exposant est 0 (dérivée nulle, non représentable)
+     * @return le monôme dérivé
+     * @throws IllegalStateException si l'exposant est 0 (la dérivée serait nulle)
      */
     public Monome deriver() {
         if (exposant == 0) {
-            throw new IllegalStateException("La dérivée d'un terme constant est nulle et ne peut pas être représentée comme un monôme.");
+            throw new IllegalStateException(
+                    "La dérivée d'un terme constant est nulle et ne peut pas être représentée comme un monôme.");
         }
         return new Monome(coefficient * exposant, exposant - 1);
     }

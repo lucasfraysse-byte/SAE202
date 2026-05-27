@@ -8,11 +8,8 @@ import java.util.regex.Pattern;
 
 /**
  * Représente un polynôme à coefficients réels de IR[X].
- * Stocké comme une liste triée (degré décroissant) de {@link Monome} non nuls.
+ * Stocké sous forme d'une liste triée par degré décroissant de {@link Monome} non nuls.
  * Le polynôme nul correspond à une liste vide.
- *
- * <p>Opérations disponibles : addition, multiplication par un polynôme,
- * multiplication par un scalaire (produit scalaire), division euclidienne.</p>
  */
 public class Polynome {
 
@@ -26,10 +23,8 @@ public class Polynome {
 
     /**
      * Construit un polynôme à partir d'une liste de monômes.
-     *
-     * <p>Les monômes de même exposant sont fusionnés (somme des coefficients).
-     * Les termes dont le coefficient résultant est quasi-nul ({@code |c| < 1e-9}) sont supprimés.
-     * La liste interne est triée par degré décroissant.</p>
+     * Les termes de même exposant sont fusionnés et les termes quasi-nuls supprimés.
+     * La liste est ensuite triée par degré décroissant.
      *
      * @param termes liste de monômes (vide pour le polynôme nul)
      * @throws IllegalArgumentException si {@code termes} est {@code null}
@@ -61,10 +56,6 @@ public class Polynome {
     /**
      * Retourne l'indice du monôme ayant l'exposant donné dans la liste,
      * ou {@code -1} si aucun monôme ne possède cet exposant.
-     *
-     * @param liste    la liste dans laquelle chercher
-     * @param exposant l'exposant recherché
-     * @return l'indice trouvé ou {@code -1}
      */
     private static int chercherExposant(List<Monome> liste, int exposant) {
         for (int i = 0; i < liste.size(); i++) {
@@ -75,11 +66,7 @@ public class Polynome {
         return -1;
     }
 
-    /**
-     * Trie la liste par exposant décroissant (tri à bulles).
-     *
-     * @param liste la liste à trier en place
-     */
+    /** Trie la liste par exposant décroissant (tri à bulles). */
     private static void trierDecroissant(List<Monome> liste) {
         for (int i = 0; i < liste.size() - 1; i++) {
             for (int j = 0; j < liste.size() - 1 - i; j++) {
@@ -104,8 +91,7 @@ public class Polynome {
     }
 
     /**
-     * Retourne le coefficient du terme d'exposant donné,
-     * ou {@code 0.0} si ce terme est absent.
+     * Retourne le coefficient du terme d'exposant donné, ou {@code 0.0} si absent.
      *
      * @param exposant l'exposant du terme recherché
      * @return le coefficient correspondant, ou {@code 0.0}
@@ -142,16 +128,6 @@ public class Polynome {
     /**
      * Retourne la somme de ce polynôme et du polynôme {@code autre}.
      *
-     * <p>Principe : on regroupe tous les monômes des deux polynômes dans une
-     * seule liste, puis on laisse le constructeur fusionner les termes de même
-     * exposant et supprimer ceux dont la somme est nulle.</p>
-     *
-     * <p>Exemples :</p>
-     * <pre>
-     *   (X^2 + 3X) + (2X + 1)  =  X^2 + 5X + 1
-     *   (X^2 + X)  + (-X^2)    =  X
-     * </pre>
-     *
      * @param autre le polynôme à additionner (non {@code null})
      * @return un nouveau polynôme égal à {@code this + autre}
      * @throws IllegalArgumentException si {@code autre} est {@code null}
@@ -160,27 +136,14 @@ public class Polynome {
         if (autre == null) {
             throw new IllegalArgumentException("Le polynôme à additionner ne peut pas être null.");
         }
-        // On rassemble tous les monômes des deux polynômes
         List<Monome> tousLesTermes = new ArrayList<>();
         tousLesTermes.addAll(this.termes);
         tousLesTermes.addAll(autre.termes);
-        // Le constructeur se charge de la fusion et du tri
         return new Polynome(tousLesTermes);
     }
 
     /**
      * Retourne le produit de ce polynôme par le polynôme {@code autre}.
-     *
-     * <p>Principe : chaque monôme de {@code this} est multiplié par chaque
-     * monôme de {@code autre} (règle : on multiplie les coefficients et on
-     * additionne les exposants). Les produits partiels sont ensuite
-     * rassemblés ; le constructeur fusionne les termes de même degré.</p>
-     *
-     * <p>Exemples :</p>
-     * <pre>
-     *   (X + 1) * (X - 1)  =  X^2 - 1
-     *   (2X)    * (3X^2)   =  6X^3
-     * </pre>
      *
      * @param autre le polynôme multiplicateur (non {@code null})
      * @return un nouveau polynôme égal à {@code this * autre}
@@ -190,33 +153,20 @@ public class Polynome {
         if (autre == null) {
             throw new IllegalArgumentException("Le polynôme à multiplier ne peut pas être null.");
         }
-        // Cas particulier : si l'un des deux est nul, le produit est nul
         if (this.estNul() || autre.estNul()) {
             return new Polynome(new ArrayList<>());
         }
         List<Monome> produits = new ArrayList<>();
-        // On multiplie chaque monôme de this par chaque monôme de autre
         for (Monome mThis : this.termes) {
             for (Monome mAutre : autre.termes) {
                 produits.add(mThis.multiplier(mAutre));
             }
         }
-        // Le constructeur fusionne les termes de même exposant
         return new Polynome(produits);
     }
 
     /**
      * Retourne le produit de ce polynôme par un scalaire réel.
-     *
-     * <p>Principe : chaque coefficient du polynôme est multiplié par le scalaire.
-     * On réutilise la méthode {@link Monome#multiplierParScalaire(double)} déjà
-     * disponible sur chaque monôme.</p>
-     *
-     * <p>Exemples :</p>
-     * <pre>
-     *   (x^2 + 3x) * 2    =  2x^2 + 6x
-     *   (x^2 - 1)  * (-1) =  -x^2 + 1
-     * </pre>
      *
      * @param scalaire le facteur réel (non nul)
      * @return un nouveau polynôme égal à {@code this * scalaire}
@@ -226,12 +176,10 @@ public class Polynome {
         if (scalaire == 0.0) {
             throw new IllegalArgumentException("Le scalaire ne peut pas être nul.");
         }
-        // Cas particulier : polynôme nul * scalaire = polynôme nul
         if (this.estNul()) {
             return new Polynome(new ArrayList<>());
         }
         List<Monome> nouveauxTermes = new ArrayList<>();
-        // On multiplie chaque monôme par le scalaire
         for (Monome m : this.termes) {
             nouveauxTermes.add(m.multiplierParScalaire(scalaire));
         }
@@ -239,35 +187,12 @@ public class Polynome {
     }
 
     /**
-     * Effectue la division euclidienne de ce polynôme par le polynôme {@code diviseur}
-     * et retourne un tableau contenant {@code [quotient, reste]}.
-     *
-     * <p>La division euclidienne garantit que :</p>
-     * <pre>
-     *   this = diviseur * quotient + reste
-     * </pre>
-     * <p>avec {@code degré(reste) < degré(diviseur)}, ou {@code reste} est le
-     * polynôme nul.</p>
-     *
-     * <p>Algorithme utilisé : division « à la main » suivant les puissances
-     * décroissantes (identique à la division euclidienne des entiers).</p>
-     * <ol>
-     *   <li>On travaille sur un dividende courant (initialement une copie de {@code this}).</li>
-     *   <li>Tant que le degré du dividende courant est ≥ degré du diviseur :<br>
-     *       – on calcule le monôme quotient partiel = terme dominant du dividende
-     *         divisé par le terme dominant du diviseur ;<br>
-     *       – on soustrait {@code diviseur * monôme_partiel} du dividende courant.</li>
-     *   <li>Ce qui reste est le reste de la division.</li>
-     * </ol>
-     *
-     * <p>Exemples :</p>
-     * <pre>
-     *   (X^2 - 1) / (X + 1)  →  quotient = X - 1,  reste = 0
-     *   (X^2 + 1) / (X)      →  quotient = X,       reste = 1
-     * </pre>
+     * Effectue la division euclidienne de ce polynôme par {@code diviseur}.
+     * Retourne un tableau {@code [quotient, reste]} tel que
+     * {@code this = diviseur * quotient + reste}.
      *
      * @param diviseur le polynôme diviseur (non {@code null}, non nul)
-     * @return un tableau {@code Polynome[2]} tel que {@code [0]} = quotient et {@code [1]} = reste
+     * @return un tableau {@code Polynome[2]} : {@code [0]} = quotient, {@code [1]} = reste
      * @throws IllegalArgumentException si {@code diviseur} est {@code null} ou est le polynôme nul
      */
     public Polynome[] diviser(Polynome diviseur) {
@@ -278,60 +203,38 @@ public class Polynome {
             throw new IllegalArgumentException("La division par le polynôme nul est impossible.");
         }
 
-        // Le quotient est construit terme par terme
         List<Monome> termesQuotient = new ArrayList<>();
-
-        // Le dividende courant démarre comme une copie de this
-        // On le représente par sa liste de monômes dans une liste mutable
-        // Pour simplifier, on retravaille avec des Polynome à chaque étape
         Polynome dividendeCourant = new Polynome(new ArrayList<>(this.termes));
 
-        // Degré et coefficient dominant du diviseur (ne changent pas)
-        int degreeDiviseur        = diviseur.getDegre();
-        double coeffDominantDiv   = diviseur.getTermes().get(0).getCoefficient();
+        int degreeDiviseur      = diviseur.getDegre();
+        double coeffDominantDiv = diviseur.getTermes().get(0).getCoefficient();
 
-        // Tant que le degré du reste courant >= degré du diviseur
         while (!dividendeCourant.estNul() && dividendeCourant.getDegre() >= degreeDiviseur) {
-
-            // Monôme dominant du dividende courant
             Monome dominantDividende = dividendeCourant.getTermes().get(0);
-
-            // Monôme quotient partiel : coeff = coeff_dominant_dividende / coeff_dominant_diviseur
-            //                           exp   = exp_dominant_dividende   - exp_dominant_diviseur
-            double coeffPartiel  = dominantDividende.getCoefficient() / coeffDominantDiv;
+            double coeffPartiel    = dominantDividende.getCoefficient() / coeffDominantDiv;
             int    exposantPartiel = dominantDividende.getExposant() - degreeDiviseur;
-            Monome monomePartiel = new Monome(coeffPartiel, exposantPartiel);
+            Monome monomePartiel   = new Monome(coeffPartiel, exposantPartiel);
 
-            // On ajoute ce monôme au quotient
             termesQuotient.add(monomePartiel);
 
-            // On soustrait diviseur * monomePartiel du dividende courant
-            // Soustraction = addition de l'opposé
-            // On construit -monomePartiel * diviseur
             List<Monome> soustractionTermes = new ArrayList<>();
             for (Monome mDiv : diviseur.getTermes()) {
-                // Produit de mDiv par monomePartiel, puis on prend l'opposé (coefficient * -1)
                 Monome produit = mDiv.multiplier(monomePartiel);
                 soustractionTermes.add(new Monome(-produit.getCoefficient(), produit.getExposant()));
             }
-            // On additionne le dividende courant avec ces termes négatifs
             List<Monome> nouveauxTermes = new ArrayList<>(dividendeCourant.getTermes());
             nouveauxTermes.addAll(soustractionTermes);
             dividendeCourant = new Polynome(nouveauxTermes);
         }
 
-        Polynome quotient = new Polynome(termesQuotient);
-        Polynome reste    = dividendeCourant; // ce qui reste après la boucle
-
-        return new Polynome[]{quotient, reste};
+        return new Polynome[]{new Polynome(termesQuotient), dividendeCourant};
     }
 
     // ── Affichage ─────────────────────────────────────────────────────────────
 
     /**
      * Retourne une représentation lisible du polynôme.
-     *
-     * <p>Exemples : {@code "x^2 + 3x + 3"}, {@code "-x^2 - 3x"}, {@code "0"}.</p>
+     * Exemples : {@code "x^2 + 3x + 3"}, {@code "-x^2 - 3x"}, {@code "0"}.
      *
      * @return la représentation textuelle du polynôme
      */
@@ -374,8 +277,7 @@ public class Polynome {
     }
 
     /**
-     * Formate un nombre réel : affiche un entier si la valeur est entière,
-     * sinon affiche la valeur décimale complète.
+     * Formate un nombre réel : entier si la valeur est entière, décimal sinon.
      *
      * @param v la valeur à formater
      * @return la représentation textuelle du nombre
@@ -391,9 +293,8 @@ public class Polynome {
 
     /**
      * Parse une expression textuelle et retourne le polynôme correspondant.
-     *
-     * <p>Formats acceptés : {@code "x^2 + 3x - 5"}, {@code "x^30 + x^9"},
-     * {@code "3.1x^2 - 2x + 1"}, {@code "5"}.</p>
+     * Formats acceptés : {@code "x^2 + 3x - 5"}, {@code "x^30 + x^9"},
+     * {@code "3.1x^2 - 2x + 1"}, {@code "5"}.
      *
      * @param expression l'expression à parser
      * @return le polynôme correspondant
@@ -417,28 +318,25 @@ public class Polynome {
     }
 
     /**
-     * Parse un terme isolé (sans opérateur {@code +}) et retourne le monôme correspondant.
+     * Parse un terme isolé et retourne le monôme correspondant.
      *
      * @param part la chaîne représentant un terme, par exemple {@code "3x^2"} ou {@code "-5"}
      * @return le monôme correspondant
-     * @throws IllegalArgumentException si le terme est invalide ou de coefficient nul
+     * @throws IllegalArgumentException si le terme est invalide
      */
     private static Monome parserTerme(String part) {
         Matcher m;
 
-        // Forme [coeff]x^[exp] : "3x^2", "x^30", "-x^2"
         m = Pattern.compile("^(-?\\d*\\.?\\d*)x\\^(\\d+)$").matcher(part);
         if (m.matches()) {
             return new Monome(parseCoeff(m.group(1)), Integer.parseInt(m.group(2)));
         }
 
-        // Forme [coeff]x : "3x", "x", "-x"
         m = Pattern.compile("^(-?\\d*\\.?\\d*)x$").matcher(part);
         if (m.matches()) {
             return new Monome(parseCoeff(m.group(1)), 1);
         }
 
-        // Forme constante : "5", "-3", "2.7"
         m = Pattern.compile("^-?\\d+\\.?\\d*$").matcher(part);
         if (m.matches()) {
             double val = Double.parseDouble(part);
@@ -454,12 +352,7 @@ public class Polynome {
 
     /**
      * Interprète une chaîne comme un coefficient numérique.
-     *
-     * <ul>
-     *   <li>Chaîne vide → {@code 1.0} (coefficient implicite)</li>
-     *   <li>{@code "-"} → {@code -1.0}</li>
-     *   <li>Sinon → conversion numérique standard</li>
-     * </ul>
+     * Chaîne vide → {@code 1.0}, {@code "-"} → {@code -1.0}, sinon conversion numérique.
      *
      * @param s la chaîne à interpréter
      * @return le coefficient correspondant
