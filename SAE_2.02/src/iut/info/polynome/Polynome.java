@@ -31,9 +31,6 @@ public class Polynome {
         this.termes = Collections.unmodifiableList(liste);
     }
 
-    /**
-     * Construit un polynôme à partir de ses racines réelles.
-     */
     public Polynome(double[] racines, int[] multiplicites, double coeffDominant) {
         if (coeffDominant == 0.0) throw new IllegalArgumentException("Le coefficient dominant ne peut être nul.");
         Polynome p = new Polynome(List.of(new Monome(coeffDominant, 0)));
@@ -44,6 +41,34 @@ public class Polynome {
             }
         }
         this.termes = p.getTermes();
+    }
+
+    /**
+     * Calcule le polynôme d'interpolation de Lagrange passant par les points donnés.
+     */
+    public static Polynome interpoler(double[] x, double[] y) {
+        if (x == null || y == null || x.length != y.length || x.length == 0) {
+            throw new IllegalArgumentException("Tableaux invalides ou de tailles différentes.");
+        }
+        int n = x.length;
+        Polynome resultat = new Polynome(new ArrayList<>());
+        
+        for (int i = 0; i < n; i++) {
+            Polynome li = new Polynome(List.of(new Monome(1.0, 0)));
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    if (Math.abs(x[i] - x[j]) < EPSILON) {
+                        throw new IllegalArgumentException("Les abscisses doivent toutes être distinctes.");
+                    }
+                    List<Monome> termesFacteur = new ArrayList<>();
+                    termesFacteur.add(new Monome(1.0 / (x[i] - x[j]), 1));
+                    termesFacteur.add(new Monome(-x[j] / (x[i] - x[j]), 0));
+                    li = li.multiplier(new Polynome(termesFacteur));
+                }
+            }
+            resultat = resultat.additionner(li.multiplierParScalaire(y[i]));
+        }
+        return resultat;
     }
 
     private static int chercherExposant(List<Monome> liste, int exposant) {
@@ -132,11 +157,6 @@ public class Polynome {
         return new DivisionEuclidienneResultat(new Polynome(termesQuotient), dividendeCourant);
     }
 
-    // ── Analyse Mathématique ──────────────────────────────────────────────────
-
-    /**
-     * Évaluation par la méthode de Horner généralisée.
-     */
     public double evaluer(double x) {
         if (estNul()) return 0.0;
         double res = 0.0;
@@ -190,8 +210,6 @@ public class Polynome {
         }
     }
 
-    // ── Suite de Sturm & Racines ──────────────────────────────────────────────
-
     public List<Polynome> suiteDeSturm() {
         List<Polynome> suite = new ArrayList<>();
         suite.add(this);
@@ -230,8 +248,6 @@ public class Polynome {
         List<Polynome> suite = suiteDeSturm();
         return Math.abs(variationsSturm(a, suite) - variationsSturm(b, suite));
     }
-
-    // ── Utilitaires et Parsing ────────────────────────────────────────────────
 
     @Override
     public String toString() {
