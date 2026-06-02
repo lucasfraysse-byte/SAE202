@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
@@ -13,7 +14,7 @@ import java.io.IOException;
 
 public class JavaFXApp extends Application {
 
-    private TextField txtPolyP, txtPolyQ;
+    private TextField txtPolyP, txtPolyQ, txtScalaire;
     private TextArea areaResult;
     private Label lblStatus;
 
@@ -44,31 +45,39 @@ public class JavaFXApp extends Application {
         txtPolyQ.setPromptText("Optionnel (pour +, *, /)");
         txtPolyQ.setPrefWidth(300);
 
+        txtScalaire = new TextField();
+        txtScalaire.setPromptText("Ex: 3.5");
+        txtScalaire.setPrefWidth(300);
+
         inputGrid.add(new Label("Polynôme P(x) :"), 0, 0);
         inputGrid.add(txtPolyP, 1, 0);
         inputGrid.add(new Label("Polynôme Q(x) :"), 0, 1);
         inputGrid.add(txtPolyQ, 1, 1);
+        inputGrid.add(new Label("Scalaire k :"), 0, 2);
+        inputGrid.add(txtScalaire, 1, 2);
 
         FlowPane actions = new FlowPane(10, 10);
         actions.setAlignment(Pos.CENTER);
 
-        Button btnInfos = new Button("Infos de P");
-        Button btnAdd = new Button("P + Q");
-        Button btnMult = new Button("P * Q");
-        Button btnDiv = new Button("Division (P/Q)");
-        Button btnDeriv = new Button("Dérivée P'");
-        Button btnInteg = new Button("Primitive P");
-        Button btnSturm = new Button("Racines (Sturm)");
-        Button btnInterp = new Button("Interpolation");
-        Button btnSave = new Button("Sauvegarder P");
-        Button btnLoad = new Button("Charger Fichier");
+        Button btnInfos    = new Button("Infos de P");
+        Button btnAdd      = new Button("P + Q");
+        Button btnMult     = new Button("P * Q");
+        Button btnDiv      = new Button("Division (P/Q)");
+        Button btnScalaire = new Button("P · k");
+        Button btnDeriv    = new Button("Dérivée P'");
+        Button btnInteg    = new Button("Primitive P");
+        Button btnSturm    = new Button("Racines (Sturm)");
+        Button btnInterp   = new Button("Interpolation");
+        Button btnCourbe   = new Button("Tracer courbe");
+        Button btnSave     = new Button("Sauvegarder P");
+        Button btnLoad     = new Button("Charger Fichier");
 
-        for (Button b : new Button[]{btnInfos, btnAdd, btnMult, btnDiv, btnDeriv, btnInteg, btnSturm, btnInterp, btnSave, btnLoad}) {
+        for (Button b : new Button[]{btnInfos, btnAdd, btnMult, btnDiv, btnScalaire, btnDeriv, btnInteg, btnSturm, btnInterp, btnCourbe, btnSave, btnLoad}) {
             b.setStyle(cssBtn);
             b.setPrefWidth(120);
         }
 
-        actions.getChildren().addAll(btnInfos, btnAdd, btnMult, btnDiv, btnDeriv, btnInteg, btnSturm, btnInterp, btnSave, btnLoad);
+        actions.getChildren().addAll(btnInfos, btnAdd, btnMult, btnDiv, btnScalaire, btnDeriv, btnInteg, btnSturm, btnInterp, btnCourbe, btnSave, btnLoad);
 
         areaResult = new TextArea();
         areaResult.setEditable(false);
@@ -80,10 +89,12 @@ public class JavaFXApp extends Application {
         btnAdd.setOnAction(e -> executeOp("ADD"));
         btnMult.setOnAction(e -> executeOp("MULT"));
         btnDiv.setOnAction(e -> executeOp("DIV"));
+        btnScalaire.setOnAction(e -> executerProduitScalaire());
         btnDeriv.setOnAction(e -> executeOp("DERIV"));
         btnInteg.setOnAction(e -> executeOp("INTEG"));
         btnSturm.setOnAction(e -> searchRoots());
         btnInterp.setOnAction(e -> executerInterpolation());
+        btnCourbe.setOnAction(e -> tracerCourbe());
         btnSave.setOnAction(e -> saveFile(primaryStage));
         btnLoad.setOnAction(e -> loadFile(primaryStage));
 
@@ -173,6 +184,20 @@ public class JavaFXApp extends Application {
         }
     }
 
+    private void executerProduitScalaire() {
+        try {
+            Polynome p = Polynome.parser(txtPolyP.getText());
+            double k = Double.parseDouble(txtScalaire.getText().trim());
+            Polynome resultat = p.multiplierParScalaire(k);
+            areaResult.setText("Produit scalaire P · " + k + " :\n" + resultat);
+            lblStatus.setText("Produit scalaire réussi.");
+        } catch (NumberFormatException ex) {
+            areaResult.setText("Erreur : le scalaire k doit être un nombre (ex: 3.5)");
+        } catch (Exception ex) {
+            areaResult.setText("Erreur : " + ex.getMessage());
+        }
+    }
+
     private void searchRoots() {
         try {
             Polynome p = Polynome.parser(txtPolyP.getText());
@@ -180,17 +205,98 @@ public class JavaFXApp extends Application {
             dialog.setTitle("Suite de Sturm");
             dialog.setHeaderText("Recherche de racines");
             dialog.setContentText("Entrez l'intervalle [a, b] (format: a, b) :");
-            
+
             dialog.showAndWait().ifPresent(val -> {
-                String[] bounds = val.split(",");
-                double a = Double.parseDouble(bounds[0].trim());
-                double b = Double.parseDouble(bounds[1].trim());
-                int count = p.getNombreRacinesReelles(a, b);
-                areaResult.setText("Suite de Sturm sur [" + a + ", " + b + "]\n" +
-                                 "Nombre de racines réelles détectées : " + count);
+                try {
+                    String[] bornes = val.split(",");
+                    double a = Double.parseDouble(bornes[0].trim());
+                    double b = Double.parseDouble(bornes[1].trim());
+                    int nombreRacines = p.getNombreRacinesReelles(a, b);
+
+                    StringBuilder message = new StringBuilder();
+                    message.append("Suite de Sturm sur [").append(a).append(", ").append(b).append("]\n");
+                    message.append("Nombre de racines réelles détectées : ").append(nombreRacines).append("\n");
+
+                    if (nombreRacines == 1) {
+                        double racine;
+                        if (p.evaluer(a) * p.evaluer(b) < 0) {
+                            double gauche = a, droite = b;
+                            for (int i = 0; i < 60; i++) {
+                                double milieu = (gauche + droite) / 2.0;
+                                if (p.evaluer(gauche) * p.evaluer(milieu) <= 0) droite = milieu;
+                                else gauche = milieu;
+                            }
+                            racine = (gauche + droite) / 2.0;
+                            message.append("Racine trouvée par dichotomie : x ≈ ").append(racine);
+                        } else {
+                            Polynome derivee = p.deriver();
+                            double x = (a + b) / 2.0;
+                            for (int i = 0; i < 60; i++) {
+                                double valeurDerivee = derivee.evaluer(x);
+                                if (Math.abs(valeurDerivee) < 1e-9) break;
+                                x -= p.evaluer(x) / valeurDerivee;
+                            }
+                            racine = x;
+                            message.append("Racine trouvée par Newton (multiplicité paire) : x ≈ ").append(racine);
+                        }
+                    }
+
+                    areaResult.setText(message.toString());
+                    lblStatus.setText("Sturm terminé.");
+                } catch (Exception ex) {
+                    areaResult.setText("Erreur : " + ex.getMessage());
+                }
             });
         } catch (Exception ex) {
             areaResult.setText("Erreur Sturm : " + ex.getMessage());
+        }
+    }
+
+    private void tracerCourbe() {
+        try {
+            Polynome p = Polynome.parser(txtPolyP.getText());
+            TextInputDialog dialog = new TextInputDialog("-5, 5");
+            dialog.setTitle("Courbe représentative");
+            dialog.setHeaderText("Tracé de P(x)");
+            dialog.setContentText("Intervalle [a, b] (format: a, b) :");
+
+            dialog.showAndWait().ifPresent(val -> {
+                try {
+                    String[] bornes = val.split(",");
+                    double a = Double.parseDouble(bornes[0].trim());
+                    double b = Double.parseDouble(bornes[1].trim());
+                    if (a >= b) throw new IllegalArgumentException("a doit être strictement inférieur à b.");
+
+                    NumberAxis xAxis = new NumberAxis(a, b, (b - a) / 10.0);
+                    xAxis.setLabel("x");
+                    NumberAxis yAxis = new NumberAxis();
+                    yAxis.setLabel("P(x)");
+
+                    LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
+                    chart.setTitle("P(x) = " + p);
+                    chart.setCreateSymbols(false);
+                    chart.setLegendVisible(false);
+
+                    XYChart.Series<Number, Number> series = new XYChart.Series<>();
+                    int nbPoints = 300;
+                    double pas = (b - a) / (nbPoints - 1);
+                    for (int i = 0; i < nbPoints; i++) {
+                        double x = a + i * pas;
+                        series.getData().add(new XYChart.Data<>(x, p.evaluer(x)));
+                    }
+                    chart.getData().add(series);
+
+                    Stage fenetre = new Stage();
+                    fenetre.setTitle("Courbe de P(x)");
+                    fenetre.setScene(new Scene(chart, 700, 450));
+                    fenetre.show();
+                    lblStatus.setText("Courbe tracée sur [" + a + ", " + b + "].");
+                } catch (Exception ex) {
+                    areaResult.setText("Erreur tracé : " + ex.getMessage());
+                }
+            });
+        } catch (Exception ex) {
+            areaResult.setText("Erreur : " + ex.getMessage());
         }
     }
 

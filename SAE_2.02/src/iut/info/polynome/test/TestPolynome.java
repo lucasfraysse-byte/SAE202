@@ -104,6 +104,26 @@ class TestPolynome {
         assertEquals(Double.POSITIVE_INFINITY, impairNeg.getLimiteEnMoinsInfini());
     }
 
+    @Test
+    void multiplierParScalairePolynome() {
+        Polynome p = creer(2.0, 2, 4.0, 1); // 2x^2 + 4x
+        Polynome triple = p.multiplierParScalaire(3.0);
+        assertEquals("6x^2 + 12x", triple.toString());
+    }
+
+    @Test
+    void multiplierParScalaireZeroRetourneNul() {
+        Polynome p = creer(2.0, 2, 4.0, 1);
+        assertTrue(p.multiplierParScalaire(0.0).estNul());
+    }
+
+    @Test
+    void parserExposantNegatif() {
+        Polynome p = Polynome.parser("2x^-2 + 3");
+        assertEquals(2.0,  p.getCoefficient(-2), 1e-9);
+        assertEquals(3.0,  p.getCoefficient(0),  1e-9);
+    }
+
     // ── Suite de Sturm et Interpolation ───────────────────────────────────────
 
     @Test
@@ -155,5 +175,56 @@ class TestPolynome {
 
         assertEquals("x", resultat.getQuotient().toString());
         assertEquals("1", resultat.getReste().toString());
+    }
+
+    // ── Racines réelles ───────────────────────────────────────────────────────
+
+    @Test
+    void getRacinesReellesCasSimple() {
+        // x^2 - 4 = (x-2)(x+2)
+        Polynome p = creer(1.0, 2, -4.0, 0);
+        List<Double> racines = p.getRacinesReelles();
+        assertEquals(2, racines.size());
+        racines.sort(Double::compareTo);
+        assertEquals(-2.0, racines.get(0), 1e-7);
+        assertEquals(2.0,  racines.get(1), 1e-7);
+    }
+
+    @Test
+    void getRacinesReellesAucuneRacine() {
+        // x^2 + 1 : aucune racine réelle
+        Polynome p = creer(1.0, 2, 1.0, 0);
+        assertTrue(p.getRacinesReelles().isEmpty());
+    }
+
+    @Test
+    void getRacinesReellesTroisRacines() {
+        // x^3 - x = x(x-1)(x+1)
+        Polynome p = creer(1.0, 3, -1.0, 1);
+        List<Double> racines = p.getRacinesReelles();
+        assertEquals(3, racines.size());
+        racines.sort(Double::compareTo);
+        assertEquals(-1.0, racines.get(0), 1e-7);
+        assertEquals( 0.0, racines.get(1), 1e-7);
+        assertEquals( 1.0, racines.get(2), 1e-7);
+    }
+
+    @Test
+    void getMultiplicitesRacinesSimple() {
+        // x^2 - 4 : deux racines simples
+        Polynome p = creer(1.0, 2, -4.0, 0);
+        List<double[]> mults = p.getMultiplicitesRacines();
+        assertEquals(2, mults.size());
+        for (double[] rm : mults) assertEquals(1, (int) rm[1]);
+    }
+
+    @Test
+    void getMultiplicitesRacinesRacineDouble() {
+        // x^2 - 2x + 1 = (x-1)^2 : racine double en 1
+        Polynome p = creer(1.0, 2, -2.0, 1, 1.0, 0);
+        List<double[]> mults = p.getMultiplicitesRacines();
+        assertEquals(1, mults.size());
+        assertEquals(1.0, mults.get(0)[0], 1e-5);
+        assertEquals(2,  (int) mults.get(0)[1]);
     }
 }
