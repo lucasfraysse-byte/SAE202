@@ -16,7 +16,7 @@ import java.util.Scanner;
  * les termes dont le coefficient est inférieur à EPSILON = 1e-9 sont supprimés.</p>
  *
  * <p>Les instances sont immuables : toutes les opérations retournent
- * un nouveau Polynome.</p>
+ * un nouveau Polynome.</p>+
  */
 public class Polynome {
 
@@ -36,7 +36,9 @@ public class Polynome {
      * @throws IllegalArgumentException si termes est null
      */
     public Polynome(List<Monome> termes) {
-        if (termes == null) throw new IllegalArgumentException("La liste de monômes ne peut pas être null.");
+        if (termes == null) {
+        	throw new IllegalArgumentException("La liste de monômes ne peut pas être null.");
+        }
         List<Monome> termesNormalises = new ArrayList<>();
         for (Monome monome : termes) {
             int indiceExistant = chercherExposant(termesNormalises, monome.getExposant());

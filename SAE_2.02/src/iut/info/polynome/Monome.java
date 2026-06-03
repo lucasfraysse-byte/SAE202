@@ -34,14 +34,18 @@ public class Monome {
      *
      * @return le coefficient (jamais nul)
      */
-    public double getCoefficient() { return coefficient; }
+    public double getCoefficient() { 
+    	return coefficient; 
+    }
 
     /**
      * Retourne l'exposant  du monôme  c * x^n.
      *
      * @return l'exposant (entier naturel, toujours >= 0)
      */
-    public int getExposant() { return exposant; }
+    public int getExposant() { 
+    	return exposant; 
+    }
 
     /**
      * Évalue le monôme : retourne c * x^n.
@@ -62,7 +66,9 @@ public class Monome {
      * @throws IllegalArgumentException si autre est null
      */
     public Monome multiplier(Monome autre) {
-        if (autre == null) throw new IllegalArgumentException("Le monôme à multiplier ne peut pas être null.");
+        if (autre == null) {
+        	throw new IllegalArgumentException("Le monôme à multiplier ne peut pas être null.");
+        }
         return new Monome(coefficient * autre.coefficient, exposant + autre.exposant);
     }
 
@@ -75,7 +81,9 @@ public class Monome {
      * @throws IllegalArgumentException si facteur == 0
      */
     public Monome multiplierParScalaire(double facteur) {
-        if (facteur == 0.0) throw new IllegalArgumentException("Le facteur scalaire ne peut pas être nul.");
+        if (facteur == 0.0) {
+        	throw new IllegalArgumentException("Le facteur scalaire ne peut pas être nul.");
+        }
         return new Monome(coefficient * facteur, exposant);
     }
 
