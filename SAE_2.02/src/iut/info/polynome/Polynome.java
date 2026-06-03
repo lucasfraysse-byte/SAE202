@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Locale;
+import java.util.Scanner;
 
 /**
  * Représente un polynôme à coefficients réels de IR[X].
@@ -22,11 +22,6 @@ public class Polynome {
 
     /** Seuil en dessous duquel un coefficient est considéré nul (arithmétique flottante). */
     private static final double EPSILON = 1e-9;
-
-    /** Patterns de parsing précompilés (réutilisés par {@link #parserTerme}). */
-    private static final Pattern PATTERN_TERME_XN = Pattern.compile("^(-?\\d*\\.?\\d*)x\\^(-?\\d+)$");
-    private static final Pattern PATTERN_TERME_X  = Pattern.compile("^(-?\\d*\\.?\\d*)x$");
-    private static final Pattern PATTERN_TERME_C  = Pattern.compile("^-?\\d+\\.?\\d*$");
 
     private final List<Monome> termes;
 
@@ -275,13 +270,6 @@ public class Polynome {
      */
     public double evaluer(double x) {
         if (estNul()) return 0.0;
-        // Horner uniquement pour les polynômes sans exposants négatifs
-        int plusPetitExposant = termes.get(termes.size() - 1).getExposant();
-        if (plusPetitExposant < 0) {
-            double resultat = 0.0;
-            for (Monome monome : termes) resultat += monome.evaluer(x);
-            return resultat;
-        }
         double resultat = 0.0;
         int degreCourant = getDegre();
         int indiceCourant = 0;
@@ -578,33 +566,52 @@ public class Polynome {
      */
     public static Polynome parser(String expression) {
         if (expression == null || expression.isBlank()) throw new IllegalArgumentException("L'expression est invalide.");
-        String expressionNormalisee = expression.replaceAll("\\s+", "").toLowerCase()
-                                                .replaceAll("(?<=[\\dx])-", "+-");
+        String normalized = expression.replaceAll("\\s+", "").toLowerCase()
+                                      .replaceAll("(?<=[\\dx])-", "+-");
         List<Monome> liste = new ArrayList<>();
-        for (String terme : expressionNormalisee.split("\\+")) {
+        Scanner sc = new Scanner(normalized).useDelimiter("\\+");
+        while (sc.hasNext()) {
+            String terme = sc.next();
             if (!terme.isEmpty()) liste.add(parserTerme(terme));
         }
+        sc.close();
         return new Polynome(liste);
     }
 
     private static Monome parserTerme(String terme) {
-        Matcher correspondance = PATTERN_TERME_XN.matcher(terme);
-        if (correspondance.matches()) return new Monome(parseCoeff(correspondance.group(1)), Integer.parseInt(correspondance.group(2)));
-
-        correspondance = PATTERN_TERME_X.matcher(terme);
-        if (correspondance.matches()) return new Monome(parseCoeff(correspondance.group(1)), 1);
-
-        if (PATTERN_TERME_C.matcher(terme).matches()) {
-            double valeur = Double.parseDouble(terme);
+        int idxX = terme.indexOf('x');
+        if (idxX == -1) {
+            Scanner sc = new Scanner(terme).useLocale(Locale.ENGLISH);
+            if (!sc.hasNextDouble()) throw new IllegalArgumentException("Terme invalide : '" + terme + "'");
+            double valeur = sc.nextDouble();
+            sc.close();
             if (valeur == 0.0) throw new IllegalArgumentException("Coefficient nul ignoré.");
             return new Monome(valeur, 0);
         }
-        throw new IllegalArgumentException("Terme invalide : '" + terme + "'");
-    }
-
-    private static double parseCoeff(String texte) {
-        if (texte.isEmpty()) return 1.0;
-        if (texte.equals("-")) return -1.0;
-        return Double.parseDouble(texte);
+        String coeffPart = terme.substring(0, idxX);
+        String expPart   = terme.substring(idxX + 1);
+        double coeff;
+        if (coeffPart.isEmpty()) {
+            coeff = 1.0;
+        } else if (coeffPart.equals("-")) {
+            coeff = -1.0;
+        } else {
+            Scanner sc = new Scanner(coeffPart).useLocale(Locale.ENGLISH);
+            if (!sc.hasNextDouble()) throw new IllegalArgumentException("Coefficient invalide : '" + coeffPart + "'");
+            coeff = sc.nextDouble();
+            sc.close();
+        }
+        int exposant;
+        if (expPart.isEmpty()) {
+            exposant = 1;
+        } else if (expPart.startsWith("^")) {
+            Scanner sc = new Scanner(expPart.substring(1));
+            if (!sc.hasNextInt()) throw new IllegalArgumentException("Exposant invalide : '" + expPart + "'");
+            exposant = sc.nextInt();
+            sc.close();
+        } else {
+            throw new IllegalArgumentException("Terme invalide après 'x' : '" + terme + "'");
+        }
+        return new Monome(coeff, exposant);
     }
 }

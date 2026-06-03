@@ -15,12 +15,15 @@ public class Monome {
      * Construit un monôme {@code coefficient · x^exposant}.
      *
      * @param coefficient valeur réelle non nulle
-     * @param exposant    entier quelconque (négatif autorisé pour les monômes de Laurent)
-     * @throws IllegalArgumentException si {@code coefficient == 0}
+     * @param exposant    entier naturel (&gt;= 0)
+     * @throws IllegalArgumentException si {@code coefficient == 0} ou {@code exposant < 0}
      */
     public Monome(double coefficient, int exposant) {
         if (coefficient == 0.0) {
             throw new IllegalArgumentException("Le coefficient d'un monôme ne peut pas être nul.");
+        }
+        if (exposant < 0) {
+            throw new IllegalArgumentException("L'exposant d'un monôme ne peut pas être négatif.");
         }
         this.coefficient = coefficient;
         this.exposant = exposant;
@@ -36,7 +39,7 @@ public class Monome {
     /**
      * Retourne l'exposant {@code n} du monôme {@code c · x^n}.
      *
-     * @return l'exposant (>= 0)
+     * @return l'exposant (entier naturel, toujours &gt;= 0)
      */
     public int getExposant() { return exposant; }
 
@@ -96,13 +99,8 @@ public class Monome {
      * {@code ∫c·x^n dx = c/(n+1) · x^(n+1)}.
      *
      * @return monôme primitif
-     * @throws IllegalStateException si {@code exposant == -1} (la primitive de {@code c/x} est {@code c·ln(x)},
-     *                               non représentable comme monôme)
      */
     public Monome integrer() {
-        if (exposant == -1) {
-            throw new IllegalStateException("La primitive de c·x^-1 est c·ln(x), non représentable comme monôme.");
-        }
         return new Monome(coefficient / (exposant + 1), exposant + 1);
     }
 }

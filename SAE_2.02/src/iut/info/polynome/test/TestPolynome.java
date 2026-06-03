@@ -118,10 +118,26 @@ class TestPolynome {
     }
 
     @Test
-    void parserExposantNegatif() {
-        Polynome p = Polynome.parser("2x^-2 + 3");
-        assertEquals(2.0,  p.getCoefficient(-2), 1e-9);
-        assertEquals(3.0,  p.getCoefficient(0),  1e-9);
+    void parserExposantNegatifLeveIAE() {
+        assertThrows(IllegalArgumentException.class, () -> Polynome.parser("2x^-2 + 3"));
+    }
+
+    @Test
+    void parserCasVaries() {
+        // Coefficient flottant
+        Polynome p1 = Polynome.parser("3.5x^2 - 2x + 1");
+        assertEquals(3.5, p1.getCoefficient(2), 1e-9);
+        assertEquals(-2.0, p1.getCoefficient(1), 1e-9);
+        assertEquals(1.0, p1.getCoefficient(0), 1e-9);
+
+        // Coefficient implicite (1 et -1)
+        Polynome p2 = Polynome.parser("x^3 - x");
+        assertEquals(1.0,  p2.getCoefficient(3), 1e-9);
+        assertEquals(-1.0, p2.getCoefficient(1), 1e-9);
+
+        // Terme x seul, constante seule
+        assertEquals(1.0, Polynome.parser("x").getCoefficient(1), 1e-9);
+        assertEquals(5.0, Polynome.parser("5").getCoefficient(0), 1e-9);
     }
 
     // ── Suite de Sturm et Interpolation ───────────────────────────────────────

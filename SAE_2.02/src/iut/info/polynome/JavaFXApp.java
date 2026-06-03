@@ -11,6 +11,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class JavaFXApp extends Application {
 
@@ -267,9 +268,31 @@ public class JavaFXApp extends Application {
                     double b = Double.parseDouble(bornes[1].trim());
                     if (a >= b) throw new IllegalArgumentException("a doit être strictement inférieur à b.");
 
+                    int nbPoints = 300;
+                    double pas = (b - a) / (nbPoints - 1);
+
+                    // Premier passage : calcul des bornes Y (filtre NaN/Infini)
+                    double[] yValues = new double[nbPoints];
+                    double yMin = Double.MAX_VALUE, yMax = -Double.MAX_VALUE;
+                    for (int i = 0; i < nbPoints; i++) {
+                        double y = p.evaluer(a + i * pas);
+                        yValues[i] = y;
+                        if (!Double.isNaN(y) && !Double.isInfinite(y)) {
+                            if (y < yMin) yMin = y;
+                            if (y > yMax) yMax = y;
+                        }
+                    }
+
                     NumberAxis xAxis = new NumberAxis(a, b, (b - a) / 10.0);
                     xAxis.setLabel("x");
-                    NumberAxis yAxis = new NumberAxis();
+                    NumberAxis yAxis;
+                    if (yMin > yMax) {
+                        yAxis = new NumberAxis();
+                    } else {
+                        double amplitude = yMax - yMin;
+                        double padding = amplitude == 0 ? Math.max(1.0, Math.abs(yMin) * 0.1) : amplitude * 0.1;
+                        yAxis = new NumberAxis(yMin - padding, yMax + padding, (amplitude + 2 * padding) / 10.0);
+                    }
                     yAxis.setLabel("P(x)");
 
                     LineChart<Number, Number> chart = new LineChart<>(xAxis, yAxis);
@@ -277,12 +300,12 @@ public class JavaFXApp extends Application {
                     chart.setCreateSymbols(false);
                     chart.setLegendVisible(false);
 
+                    // Deuxième passage : ajout des points valides dans la série
                     XYChart.Series<Number, Number> series = new XYChart.Series<>();
-                    int nbPoints = 300;
-                    double pas = (b - a) / (nbPoints - 1);
                     for (int i = 0; i < nbPoints; i++) {
-                        double x = a + i * pas;
-                        series.getData().add(new XYChart.Data<>(x, p.evaluer(x)));
+                        if (!Double.isNaN(yValues[i]) && !Double.isInfinite(yValues[i])) {
+                            series.getData().add(new XYChart.Data<>(a + i * pas, yValues[i]));
+                        }
                     }
                     chart.getData().add(series);
 
@@ -307,7 +330,16 @@ public class JavaFXApp extends Application {
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Texte", "*.txt"));
             File file = fileChooser.showSaveDialog(stage);
             if (file != null) {
-                PolynomeIO.sauvegarder(p, file.getAbsolutePath(), FormatPolynome.COEFFICIENTS);
+                StringBuilder contenu = new StringBuilder();
+                contenu.append("P:").append(PolynomeIO.serialiser(p, FormatPolynome.COEFFICIENTS));
+                if (!txtPolyQ.getText().trim().isEmpty()) {
+                    Polynome q = Polynome.parser(txtPolyQ.getText());
+                    contenu.append("\nQ:").append(PolynomeIO.serialiser(q, FormatPolynome.COEFFICIENTS));
+                }
+                if (!txtScalaire.getText().trim().isEmpty()) {
+                    contenu.append("\nK:").append(txtScalaire.getText().trim());
+                }
+                Files.writeString(file.toPath(), contenu.toString());
                 lblStatus.setText("Sauvegardé : " + file.getName());
             }
         } catch (Exception ex) {
@@ -320,10 +352,23 @@ public class JavaFXApp extends Application {
             FileChooser fileChooser = new FileChooser();
             File file = fileChooser.showOpenDialog(stage);
             if (file != null) {
-                Polynome p = PolynomeIO.charger(file.getAbsolutePath());
-                txtPolyP.setText(p.toString());
+                boolean formatLabeled = false;
+                for (String ligne : Files.readAllLines(file.toPath())) {
+                    if (ligne.startsWith("P:")) {
+                        txtPolyP.setText(PolynomeIO.chargerLigne(ligne.substring(2)).toString());
+                        formatLabeled = true;
+                    } else if (ligne.startsWith("Q:")) {
+                        txtPolyQ.setText(PolynomeIO.chargerLigne(ligne.substring(2)).toString());
+                    } else if (ligne.startsWith("K:")) {
+                        txtScalaire.setText(ligne.substring(2));
+                    }
+                }
+                if (!formatLabeled) {
+                    // Ancien format : une seule ligne COEFFICIENTS:... sans étiquette
+                    txtPolyP.setText(PolynomeIO.charger(file.getAbsolutePath()).toString());
+                }
                 lblStatus.setText("Chargé : " + file.getName());
-                areaResult.setText("Polynôme chargé avec succès !");
+                areaResult.setText("Fichier chargé avec succès !");
             }
         } catch (Exception ex) {
             areaResult.setText("Erreur chargement : " + ex.getMessage());

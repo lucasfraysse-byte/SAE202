@@ -91,6 +91,21 @@ public class PolynomeIO {
      * @return ligne sérialisée
      * @throws UnsupportedOperationException si {@code format == RACINES}
      */
+    public static String serialiser(Polynome p, FormatPolynome format) {
+        return serialiserLigne(p, format);
+    }
+
+    /**
+     * Désérialise une ligne texte en polynôme (version publique de {@link #chargerDepuisLigne}).
+     *
+     * @param ligne ligne au format {@code COEFFICIENTS:...} ou {@code RACINES:...}
+     * @return le polynôme correspondant
+     * @throws IllegalArgumentException si le format n'est pas reconnu
+     */
+    public static Polynome chargerLigne(String ligne) {
+        return chargerDepuisLigne(ligne);
+    }
+
     private static String serialiserLigne(Polynome p, FormatPolynome format) {
         if (format != FormatPolynome.COEFFICIENTS) {
             throw new UnsupportedOperationException("La sauvegarde au format RACINES n'est supportée qu'à la création exacte par racines.");

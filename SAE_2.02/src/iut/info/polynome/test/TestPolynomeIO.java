@@ -88,4 +88,30 @@ class TestPolynomeIO {
         List<Polynome> charges = PolynomeIO.chargerTous(fichier.toString());
         assertTrue(charges.isEmpty());
     }
+
+    @Test
+    void serialiserRetourneLigneSerialisee() {
+        Polynome p = Polynome.parser("2x^2 - x + 3");
+        String ligne = PolynomeIO.serialiser(p, FormatPolynome.COEFFICIENTS);
+        assertTrue(ligne.startsWith("COEFFICIENTS:"));
+        // Round-trip via chargerLigne
+        Polynome reconstruit = PolynomeIO.chargerLigne(ligne);
+        assertEquals(p.toString(), reconstruit.toString());
+    }
+
+    @Test
+    void chargerLigneRacinesEtCoefficients() {
+        Polynome viaCoeffs = PolynomeIO.chargerLigne("COEFFICIENTS:1.0,0.0,-1.0");
+        assertEquals(-1.0, viaCoeffs.getCoefficient(0), 1e-9);
+        assertEquals(-1.0, viaCoeffs.getCoefficient(2), 1e-9);
+
+        Polynome viaRacines = PolynomeIO.chargerLigne("RACINES:1.0:2.0/1,-1.0/1");
+        assertEquals(2, viaRacines.getDegre());
+        assertEquals(2.0, viaRacines.getCoefficient(2), 1e-9);
+    }
+
+    @Test
+    void chargerLigneFormatInvalideLeveIAE() {
+        assertThrows(IllegalArgumentException.class, () -> PolynomeIO.chargerLigne("FORMAT_INCONNU:abc"));
+    }
 }

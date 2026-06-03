@@ -39,27 +39,14 @@ class TestMonome {
     }
 
     @Test
-    void constructionExposantNegatifEstValide() {
-        Monome m = new Monome(2.0, -3);
-        assertEquals(2.0, m.getCoefficient(), 1e-9);
-        assertEquals(-3, m.getExposant());
-    }
-
-    @Test
-    void evaluerExposantNegatif() {
-        // 2 * x^-2 evalué en 4 = 2 / 16 = 0.125
-        Monome m = new Monome(2.0, -2);
-        assertEquals(0.125, m.evaluer(4.0), 1e-9);
+    void constructionExposantNegatifLeveIAE() {
+        assertThrows(IllegalArgumentException.class, () -> new Monome(2.0, -3));
+        assertThrows(IllegalArgumentException.class, () -> new Monome(1.0, -1));
     }
 
     @Test
     void deriverExposantZeroLeveISE() {
         assertThrows(IllegalStateException.class, () -> new Monome(5.0, 0).deriver());
-    }
-
-    @Test
-    void integrerExposantMoinsUnLeveISE() {
-        assertThrows(IllegalStateException.class, () -> new Monome(3.0, -1).integrer());
     }
 
     @Test
