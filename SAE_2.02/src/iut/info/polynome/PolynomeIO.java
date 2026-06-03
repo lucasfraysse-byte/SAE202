@@ -11,10 +11,10 @@ import java.util.stream.IntStream;
 /**
  * Utilitaire de persistance pour les polynômes : sauvegarde et chargement depuis des fichiers texte.
  *
- * <p>Deux formats sont définis par {@link FormatPolynome} :</p>
+ * <p>Deux formats sont définis par FormatPolynome :</p>
  * <ul>
- *   <li>{@code COEFFICIENTS:c0,c1,...,cn} — coefficients par exposant croissant.</li>
- *   <li>{@code RACINES:coeffDom:r1/m1,...} — racines avec multiplicités (lecture seule).</li>
+ *   <li>COEFFICIENTS:c0,c1,...,cn — coefficients par exposant croissant.</li>
+ *   <li>RACINES:coeffDom:r1/m1,... — racines avec multiplicités (lecture seule).</li>
  * </ul>
  *
  * <p>Cette classe est non instanciable (utilitaire statique).</p>
@@ -28,9 +28,9 @@ public class PolynomeIO {
      *
      * @param p      polynôme à sauvegarder
      * @param chemin chemin du fichier de destination
-     * @param format format de sérialisation ({@link FormatPolynome#COEFFICIENTS} uniquement)
+     * @param format format de sérialisation (FormatPolynome.COEFFICIENTS uniquement)
      * @throws IOException                   en cas d'erreur d'écriture
-     * @throws UnsupportedOperationException si {@code format == RACINES}
+     * @throws UnsupportedOperationException si format == RACINES
      */
     public static void sauvegarder(Polynome p, String chemin, FormatPolynome format) throws IOException {
         Files.writeString(Paths.get(chemin), serialiserLigne(p, format));
@@ -39,8 +39,8 @@ public class PolynomeIO {
     /**
      * Charge un polynôme depuis un fichier texte formaté.
      *
-     * <p>Le fichier doit contenir une seule ligne au format {@code COEFFICIENTS:...}
-     * ou {@code RACINES:...}.</p>
+     * <p>Le fichier doit contenir une seule ligne au format COEFFICIENTS:...
+     * ou RACINES:....</p>
      *
      * @param chemin chemin du fichier source
      * @return le polynôme chargé
@@ -56,9 +56,9 @@ public class PolynomeIO {
      *
      * @param polynomes liste de polynômes à sauvegarder
      * @param chemin    chemin du fichier de destination
-     * @param format    format de sérialisation ({@link FormatPolynome#COEFFICIENTS} uniquement)
+     * @param format    format de sérialisation ( FormatPolynome.COEFFICIENTS} uniquement)
      * @throws IOException                   en cas d'erreur d'écriture
-     * @throws UnsupportedOperationException si {@code format == RACINES}
+     * @throws UnsupportedOperationException si format == RACINES
      */
     public static void sauvegarderTous(List<Polynome> polynomes, String chemin, FormatPolynome format) throws IOException {
         String contenu = polynomes.stream()
@@ -89,7 +89,7 @@ public class PolynomeIO {
      * @param p      polynôme à sérialiser
      * @param format format cible
      * @return ligne sérialisée
-     * @throws UnsupportedOperationException si {@code format == RACINES}
+     * @throws UnsupportedOperationException si format == RACINES
      */
     public static String serialiser(Polynome p, FormatPolynome format) {
         return serialiserLigne(p, format);
@@ -98,7 +98,7 @@ public class PolynomeIO {
     /**
      * Désérialise une ligne texte en polynôme (version publique de {@link #chargerDepuisLigne}).
      *
-     * @param ligne ligne au format {@code COEFFICIENTS:...} ou {@code RACINES:...}
+     * @param ligne ligne au format COEFFICIENTS:... ou RACINES:...
      * @return le polynôme correspondant
      * @throws IllegalArgumentException si le format n'est pas reconnu
      */
@@ -120,7 +120,7 @@ public class PolynomeIO {
     /**
      * Désérialise une ligne texte en polynôme.
      *
-     * @param ligne ligne au format {@code COEFFICIENTS:...} ou {@code RACINES:...}
+     * @param ligne ligne au format COEFFICIENTS:... ou RACINES:...
      * @return le polynôme correspondant
      * @throws IllegalArgumentException si le format n'est pas reconnu
      */
@@ -130,7 +130,7 @@ public class PolynomeIO {
         throw new IllegalArgumentException("Format de fichier non reconnu ou corrompu.");
     }
 
-    /** Désérialise le corps d'une ligne {@code COEFFICIENTS:...} (coefficients par exposant croissant). */
+    /** Désérialise le corps d'une ligne COEFFICIENTS:... (coefficients par exposant croissant). */
     private static Polynome chargerCoefficients(String data) {
         String[] parts = data.split(",");
         List<Monome> monomes = new ArrayList<>();
@@ -141,7 +141,7 @@ public class PolynomeIO {
         return new Polynome(monomes);
     }
 
-    /** Désérialise le corps d'une ligne {@code RACINES:...} (coefficient dominant puis racines/multiplicités). */
+    /** Désérialise le corps d'une ligne RACINES:... (coefficient dominant puis racines/multiplicités). */
     private static Polynome chargerRacines(String data) {
         String[] splitMain = data.split(":");
         double coeffDom = Double.parseDouble(splitMain[0].trim());

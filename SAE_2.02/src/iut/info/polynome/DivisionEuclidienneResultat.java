@@ -3,9 +3,9 @@ package iut.info.polynome;
 /**
  * Encapsule le résultat d'une division euclidienne de polynômes.
  *
- * <p>Pour deux polynômes {@code A} et {@code B} (B non nul), la division euclidienne
- * garantit l'existence unique de {@code Q} et {@code R} tels que :</p>
- * <pre>  A = B · Q + R,   deg(R) &lt; deg(B)</pre>
+ * <p>Pour deux polynômes, le polynôme 1  et le polynôme 2 , la division euclidienne
+ * garantit l'existence unique du quotient et du reste tels que :</p>
+ * <p>  A = B · Q + R,   deg(R) deg(B)</p>
  *
  * <p>Les instances sont immuables.</p>
  *

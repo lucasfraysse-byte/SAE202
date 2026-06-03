@@ -10,13 +10,13 @@ import java.util.Scanner;
 /**
  * Représente un polynôme à coefficients réels de IR[X].
  *
- * <p>La représentation interne est <strong>creuse</strong> : seuls les termes non nuls
- * sont stockés dans une liste de {@link Monome}, triée par exposant décroissant.
+ * <p>La représentation interne est creuse : seuls les termes non nuls
+ * sont stockés dans une liste de Monome, triée par exposant décroissant.
  * Deux termes de même exposant sont automatiquement fusionnés à la construction ;
- * les termes dont le coefficient est inférieur à {@code EPSILON = 1e-9} sont supprimés.</p>
+ * les termes dont le coefficient est inférieur à EPSILON = 1e-9 sont supprimés.</p>
  *
- * <p>Les instances sont <strong>immuables</strong> : toutes les opérations retournent
- * un nouveau {@code Polynome}.</p>
+ * <p>Les instances sont immuables : toutes les opérations retournent
+ * un nouveau Polynome.</p>
  */
 public class Polynome {
 
@@ -33,7 +33,7 @@ public class Polynome {
      * par exposant décroissant et rendue immuable.</p>
      *
      * @param termes liste de monômes (non null, peut être vide pour le polynôme nul)
-     * @throws IllegalArgumentException si {@code termes} est null
+     * @throws IllegalArgumentException si termes est null
      */
     public Polynome(List<Monome> termes) {
         if (termes == null) throw new IllegalArgumentException("La liste de monômes ne peut pas être null.");
@@ -58,12 +58,12 @@ public class Polynome {
     /**
      * Construit un polynôme à partir de ses racines réelles et de son coefficient dominant.
      *
-     * <p>Le polynôme résultant est : {@code coeffDominant · ∏(x - racines[i])^multiplicites[i]}.</p>
+     * <p>Le polynôme résultant est : coeffDominant · ∏(x - racines[i])^multiplicites[i].</p>
      *
      * @param racines        tableau des racines réelles
-     * @param multiplicites  multiplicité de chaque racine (même taille que {@code racines})
+     * @param multiplicites  multiplicité de chaque racine (même taille que racines)
      * @param coeffDominant  coefficient dominant (non nul)
-     * @throws IllegalArgumentException si {@code coeffDominant == 0}
+     * @throws IllegalArgumentException si coeffDominant == 0
      */
     public Polynome(double[] racines, int[] multiplicites, double coeffDominant) {
         if (coeffDominant == 0.0) throw new IllegalArgumentException("Le coefficient dominant ne peut être nul.");
@@ -80,11 +80,11 @@ public class Polynome {
     /**
      * Calcule le polynôme d'interpolation de Lagrange passant par les points donnés.
      *
-     * <p>Pour {@code n} points {@code (x[i], y[i])} à abscisses distinctes, retourne
-     * l'unique polynôme de degré &lt; n vérifiant {@code P(x[i]) = y[i]}.</p>
+     * <p>Pour n points (x[i], y[i]) à abscisses distinctes, retourne
+     * l'unique polynôme de degré &lt; n vérifiant P(x[i]) = y[i].</p>
      *
      * @param x tableau des abscisses (toutes distinctes, non null, non vide)
-     * @param y tableau des ordonnées (même taille que {@code x})
+     * @param y tableau des ordonnées (même taille que x)
      * @return polynôme d'interpolation
      * @throws IllegalArgumentException si les tableaux sont null, vides, de tailles différentes,
      *                                  ou si deux abscisses sont égales
@@ -114,7 +114,6 @@ public class Polynome {
         return resultat;
     }
 
-    // ── Helpers de construction ───────────────────────────────────────────────
 
     private static int chercherExposant(List<Monome> liste, int exposant) {
         for (int i = 0; i < liste.size(); i++) {
@@ -123,22 +122,21 @@ public class Polynome {
         return -1;
     }
 
-    // ── Accès ─────────────────────────────────────────────────────────────────
 
     /**
      * Retourne le degré du polynôme.
      *
-     * @return degré (exposant du terme dominant), ou {@code -1} si le polynôme est nul
+     * @return degré (exposant du terme dominant), ou -1 si le polynôme est nul
      */
     public int getDegre() {
         return termes.isEmpty() ? -1 : termes.get(0).getExposant();
     }
 
     /**
-     * Retourne le coefficient du terme de degré {@code exposant}.
+     * Retourne le coefficient du terme de degré exposant.
      *
      * @param exposant exposant cherché
-     * @return le coefficient correspondant, ou {@code 0.0} si absent
+     * @return le coefficient correspondant, ou 0.0 si absent
      */
     public double getCoefficient(int exposant) {
         for (Monome monome : termes) {
@@ -167,25 +165,24 @@ public class Polynome {
     /**
      * Retourne la liste immuable des monômes (termes non nuls, triés par exposant décroissant).
      *
-     * @return liste non modifiable de {@link Monome}
+     * @return liste non modifiable de Monome
      */
     public List<Monome> getTermes() { return termes; }
 
     /**
      * Indique si ce polynôme est le polynôme nul (aucun terme non nul).
      *
-     * @return {@code true} si nul
+     * @return true si nul
      */
     public boolean estNul() { return termes.isEmpty(); }
 
-    // ── Opérations algébriques ────────────────────────────────────────────────
 
     /**
      * Retourne la somme {@code this + autre}.
      *
      * @param autre polynôme à additionner (non null)
      * @return nouveau polynôme somme
-     * @throws IllegalArgumentException si {@code autre} est null
+     * @throws IllegalArgumentException si autre est null
      */
     public Polynome additionner(Polynome autre) {
         if (autre == null) throw new IllegalArgumentException("Le polynôme à additionner ne peut pas être null.");
@@ -200,7 +197,7 @@ public class Polynome {
      *
      * @param autre polynôme à multiplier (non null)
      * @return nouveau polynôme produit (polynôme nul si l'un des opérandes est nul)
-     * @throws IllegalArgumentException si {@code autre} est null
+     * @throws IllegalArgumentException si autre est null
      */
     public Polynome multiplier(Polynome autre) {
         if (autre == null) throw new IllegalArgumentException("Le polynôme à multiplier ne peut pas être null.");
@@ -215,7 +212,7 @@ public class Polynome {
     }
 
     /**
-     * Retourne ce polynôme multiplié par un scalaire : {@code scalaire · this}.
+     * Retourne ce polynôme multiplié par un scalaire : scalaire * this.
      *
      * @param scalaire valeur réelle
      * @return nouveau polynôme (polynôme nul si |scalaire| &lt; EPSILON)
@@ -230,11 +227,11 @@ public class Polynome {
     /**
      * Effectue la division euclidienne {@code this ÷ diviseur}.
      *
-     * <p>Garantie : {@code this == diviseur * Q + R} avec {@code deg(R) < deg(diviseur)}.</p>
+     * <p>Garantie : this == diviseur * Q + R} avec deg(R) < deg(diviseur).</p>
      *
      * @param diviseur polynôme diviseur (non null, non nul)
-     * @return {@link DivisionEuclidienneResultat} contenant le quotient et le reste
-     * @throws IllegalArgumentException si {@code diviseur} est null ou est le polynôme nul
+     * @return DivisionEuclidienneResultat contenant le quotient et le reste
+     * @throws IllegalArgumentException si diviseur est null ou est le polynôme nul
      */
     public DivisionEuclidienneResultat diviser(Polynome diviseur) {
         if (diviseur == null || diviseur.estNul()) throw new IllegalArgumentException("Division par le polynôme nul impossible.");
@@ -260,10 +257,9 @@ public class Polynome {
         return new DivisionEuclidienneResultat(new Polynome(termesQuotient), dividendeCourant);
     }
 
-    // ── Analyse mathématique ──────────────────────────────────────────────────
 
     /**
-     * Évalue ce polynôme en {@code x} par l'algorithme de Horner adapté aux listes creuses.
+     * Évalue ce polynôme en x par l'algorithme de Horner adapté aux listes creuses.
      *
      * @param x valeur de la variable
      * @return P(x)
@@ -286,12 +282,12 @@ public class Polynome {
     }
 
     /**
-     * Retourne la dérivée {@code P'} de ce polynôme.
+     * Retourne la dérivée P' de ce polynôme.
      *
      * <p>Les termes constants (exposant 0) sont supprimés ; les autres sont dérivés
-     * via {@link Monome#deriver()}.</p>
+     * via Monome deriver().</p>
      *
-     * @return polynôme dérivé (polynôme nul si {@code this} est constant)
+     * @return polynôme dérivé (polynôme nul si this est constant)
      */
     public Polynome deriver() {
         List<Monome> termesDerivee = new ArrayList<>();
@@ -304,7 +300,7 @@ public class Polynome {
     /**
      * Retourne une primitive de ce polynôme (sans constante d'intégration).
      *
-     * <p>Chaque terme {@code c·x^n} devient {@code c/(n+1)·x^(n+1)}.</p>
+     * <p>Chaque terme c*x^n devient c/(n+1)*x^(n+1).</p>
      *
      * @return polynôme primitif
      */
@@ -315,14 +311,14 @@ public class Polynome {
     }
 
     /**
-     * Calcule la valeur moyenne de ce polynôme sur l'intervalle {@code [a, b]}.
+     * Calcule la valeur moyenne de ce polynôme sur l'intervalle  [a, b].
      *
-     * <p>Formule : {@code (P_int(b) - P_int(a)) / (b - a)}, où {@code P_int} est la primitive.</p>
+     * <p>Formule : (P_int(b) - P_int(a)) / (b - a), où P_int est la primitive.</p>
      *
      * @param a borne inférieure
-     * @param b borne supérieure (différente de {@code a})
+     * @param b borne supérieure (différente de a)
      * @return valeur moyenne
-     * @throws IllegalArgumentException si {@code a == b}
+     * @throws IllegalArgumentException si a == b
      */
     public double valeurMoyenne(double a, double b) {
         if (a == b) throw new IllegalArgumentException("L'intervalle doit être non nul.");
@@ -331,12 +327,12 @@ public class Polynome {
     }
 
     /**
-     * Retourne la limite de ce polynôme en {@code +∞}.
+     * Retourne la limite de ce polynôme en +∞.
      *
      * <p>Déterminée par le signe du coefficient dominant et la parité du degré.</p>
      *
-     * @return {@link Double#POSITIVE_INFINITY} ou {@link Double#NEGATIVE_INFINITY},
-     *         ou {@code 0.0} si le polynôme est nul
+     * @return Double POSITIVE_INFINITY ou Double NEGATIVE_INFINITY,
+     *         ou 0.0 si le polynôme est nul
      */
     public double getLimiteEnPlusInfini() {
         if (estNul()) return 0.0;
@@ -345,12 +341,12 @@ public class Polynome {
     }
 
     /**
-     * Retourne la limite de ce polynôme en {@code -∞}.
+     * Retourne la limite de ce polynôme en -∞.
      *
-     * <p>Égale à la limite en {@code +∞} si le degré est pair, opposée si impair.</p>
+     * <p>Égale à la limite en +∞ si le degré est pair, opposée si impair.</p>
      *
-     * @return {@link Double#POSITIVE_INFINITY} ou {@link Double#NEGATIVE_INFINITY},
-     *         ou {@code 0.0} si le polynôme est nul
+     * @return Double POSITIVE_INFINITY ou Double NEGATIVE_INFINITY,
+     *         ou 0.0 si le polynôme est nul
      */
     public double getLimiteEnMoinsInfini() {
         if (estNul()) return 0.0;
@@ -359,12 +355,11 @@ public class Polynome {
         return degrePair ? limitePlusInfini : -limitePlusInfini;
     }
 
-    // ── Racines ───────────────────────────────────────────────────────────────
 
     /**
      * Retourne la suite de Sturm de ce polynôme.
      *
-     * <p>La suite de Sturm {@code (P0, P1, P2, ...)} est construite ainsi :
+     * <p>La suite de Sturm (P0, P1, P2, ...) est construite ainsi :
      * P0 = this, P1 = P', puis P_{k+1} = -(P_{k-1} mod P_k). Elle permet de
      * compter exactement les racines réelles distinctes dans un intervalle.</p>
      *
@@ -392,12 +387,12 @@ public class Polynome {
     }
 
     /**
-     * Compte le nombre de racines réelles distinctes dans l'intervalle ouvert {@code ]a, b[}
+     * Compte le nombre de racines réelles distinctes dans l'intervalle ouvert ]a, b[
      * par le théorème de Sturm.
      *
      * @param a borne inférieure de l'intervalle
      * @param b borne supérieure de l'intervalle
-     * @return nombre de racines réelles distinctes dans {@code ]a, b[}
+     * @return nombre de racines réelles distinctes dans ]a, b[
      */
     public int getNombreRacinesReelles(double a, double b) {
         List<Polynome> suite = suiteDeSturm();
@@ -427,11 +422,11 @@ public class Polynome {
     /**
      * Retourne les multiplicités de chaque racine réelle distincte.
      *
-     * <p>Chaque élément du tableau est {@code {racine, multiplicité}}.
-     * La multiplicité de {@code r} est le plus petit entier {@code k >= 1} tel que
+     * <p>Chaque élément du tableau est {racine, multiplicité}.
+     * La multiplicité de {@code r} est le plus petit entier  k >= 1 tel que
      * {@code P^(k)(r) != 0} (première dérivée non nulle en r).</p>
      *
-     * @return liste de paires {@code [racine, multiplicité]}, dans l'ordre des racines
+     * @return liste de paires [racine, multiplicité], dans l'ordre des racines
      */
     public List<double[]> getMultiplicitesRacines() {
         List<double[]> resultats = new ArrayList<>();
@@ -448,8 +443,8 @@ public class Polynome {
     }
 
     /**
-     * Borne de Cauchy : toutes les racines réelles sont dans {@code [-M, M]}
-     * avec {@code M = 1 + max(|ai|) / |an|}.
+     * Borne de Cauchy : toutes les racines réelles sont dans [-M, M]
+     * avec M = 1 + max(|ai|) / |an|.
      */
     private double borneCauchy() {
         double coefficientDominant = Math.abs(termes.get(0).getCoefficient());
@@ -462,7 +457,7 @@ public class Polynome {
     }
 
     /**
-     * Isole récursivement les racines dans {@code [a, b]} par dichotomie sur la suite de Sturm.
+     * Isole récursivement les racines dans [a, b] par dichotomie sur la suite de Sturm.
      * Quand un sous-intervalle contient exactement 1 racine, la raffine et l'ajoute à la liste.
      */
     private void isolerRacines(double a, double b, List<Double> racines) {
@@ -478,7 +473,7 @@ public class Polynome {
     }
 
     /**
-     * Trouve la racine unique dans {@code [a, b]}.
+     * Trouve la racine unique dans [a, b].
      * Utilise la bissection si f change de signe, Newton sinon (racine de multiplicité paire).
      */
     private double trouverRacine(double a, double b) {
@@ -513,12 +508,11 @@ public class Polynome {
         return nombreVariations;
     }
 
-    // ── Affichage et parsing ──────────────────────────────────────────────────
 
     /**
      * Retourne la représentation textuelle du polynôme en notation mathématique standard.
      *
-     * <p>Exemples : {@code "3x^2 - x + 5"}, {@code "x"}, {@code "0"} (polynôme nul).</p>
+     * <p>Exemples : "3x^2 - x + 5", "x", "0" (polynôme nul).</p>
      *
      * @return chaîne représentant le polynôme
      */
@@ -555,9 +549,9 @@ public class Polynome {
      *
      * <p>Formats acceptés pour chaque terme (insensible à la casse, espaces ignorés) :</p>
      * <ul>
-     *   <li>{@code [c]x^n} — ex : {@code "3x^2"}, {@code "-x^3"}</li>
-     *   <li>{@code [c]x}   — ex : {@code "2x"}, {@code "-x"}</li>
-     *   <li>{@code c}      — ex : {@code "5"}, {@code "-3.14"}</li>
+     *   <li>[c]x^n ex : "3x^2", "-x^3"</li>
+     *   <li>[c]x   ex : "2x", "-x"</li>
+     *   <li> c     ex : "5", "-3.14"</li>
      * </ul>
      *
      * @param expression expression textuelle du polynôme (non null, non vide)
