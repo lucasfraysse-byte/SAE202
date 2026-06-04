@@ -51,7 +51,7 @@ public class Monome {
      * Évalue le monôme : retourne c * x^n.
      *
      * @param valeurX valeur de la variable
-     * @return {@code coefficient * Math.pow(valeurX, exposant)}
+     * @return coefficient * Math.pow(valeurX, exposant)
      */
     public double evaluer(double valeurX) {
         return coefficient * Math.pow(valeurX, exposant);
