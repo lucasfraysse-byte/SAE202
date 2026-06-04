@@ -10,7 +10,6 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 
 public class JavaFXApp extends Application {
@@ -219,27 +218,8 @@ public class JavaFXApp extends Application {
                     message.append("Nombre de racines réelles détectées : ").append(nombreRacines).append("\n");
 
                     if (nombreRacines == 1) {
-                        double racine;
-                        if (p.evaluer(a) * p.evaluer(b) < 0) {
-                            double gauche = a, droite = b;
-                            for (int i = 0; i < 60; i++) {
-                                double milieu = (gauche + droite) / 2.0;
-                                if (p.evaluer(gauche) * p.evaluer(milieu) <= 0) droite = milieu;
-                                else gauche = milieu;
-                            }
-                            racine = (gauche + droite) / 2.0;
-                            message.append("Racine trouvée par dichotomie : x ≈ ").append(racine);
-                        } else {
-                            Polynome derivee = p.deriver();
-                            double x = (a + b) / 2.0;
-                            for (int i = 0; i < 60; i++) {
-                                double valeurDerivee = derivee.evaluer(x);
-                                if (Math.abs(valeurDerivee) < 1e-9) break;
-                                x -= p.evaluer(x) / valeurDerivee;
-                            }
-                            racine = x;
-                            message.append("Racine trouvée par Newton (multiplicité paire) : x ≈ ").append(racine);
-                        }
+                        double racine = p.trouverRacine(a, b);
+                        message.append("Racine approchée trouvée : x ≈ ").append(racine);
                     }
 
                     areaResult.setText(message.toString());
@@ -266,20 +246,25 @@ public class JavaFXApp extends Application {
                     String[] bornes = val.split(",");
                     double a = Double.parseDouble(bornes[0].trim());
                     double b = Double.parseDouble(bornes[1].trim());
-                    if (a >= b) throw new IllegalArgumentException("a doit être strictement inférieur à b.");
+                    if (a >= b) {
+                    	throw new IllegalArgumentException("a doit être strictement inférieur à b.");
+                    }
 
                     int nbPoints = 300;
                     double pas = (b - a) / (nbPoints - 1);
 
-                    // Premier passage : calcul des bornes Y (filtre NaN/Infini)
                     double[] yValues = new double[nbPoints];
                     double yMin = Double.MAX_VALUE, yMax = -Double.MAX_VALUE;
                     for (int i = 0; i < nbPoints; i++) {
                         double y = p.evaluer(a + i * pas);
                         yValues[i] = y;
                         if (!Double.isNaN(y) && !Double.isInfinite(y)) {
-                            if (y < yMin) yMin = y;
-                            if (y > yMax) yMax = y;
+                            if (y < yMin) {
+                            	yMin = y;
+                            }
+                            if (y > yMax) {
+                            	yMax = y;
+                            }
                         }
                     }
 
@@ -300,7 +285,6 @@ public class JavaFXApp extends Application {
                     chart.setCreateSymbols(false);
                     chart.setLegendVisible(false);
 
-                    // Deuxième passage : ajout des points valides dans la série
                     XYChart.Series<Number, Number> series = new XYChart.Series<>();
                     for (int i = 0; i < nbPoints; i++) {
                         if (!Double.isNaN(yValues[i]) && !Double.isInfinite(yValues[i])) {
@@ -364,7 +348,6 @@ public class JavaFXApp extends Application {
                     }
                 }
                 if (!formatLabeled) {
-                    // Ancien format : une seule ligne COEFFICIENTS:... sans étiquette
                     txtPolyP.setText(PolynomeIO.charger(file.getAbsolutePath()).toString());
                 }
                 lblStatus.setText("Chargé : " + file.getName());

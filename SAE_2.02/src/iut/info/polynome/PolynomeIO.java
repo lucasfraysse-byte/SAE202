@@ -78,7 +78,9 @@ public class PolynomeIO {
     public static List<Polynome> chargerTous(String chemin) throws IOException {
         List<Polynome> result = new ArrayList<>();
         for (String ligne : Files.readAllLines(Paths.get(chemin))) {
-            if (!ligne.isBlank()) result.add(chargerDepuisLigne(ligne));
+            if (!ligne.isBlank()) {
+            	result.add(chargerDepuisLigne(ligne));
+            }
         }
         return result;
     }
@@ -125,8 +127,12 @@ public class PolynomeIO {
      * @throws IllegalArgumentException si le format n'est pas reconnu
      */
     private static Polynome chargerDepuisLigne(String ligne) {
-        if (ligne.startsWith("COEFFICIENTS:")) return chargerCoefficients(ligne.substring(13));
-        if (ligne.startsWith("RACINES:"))      return chargerRacines(ligne.substring(8));
+        if (ligne.startsWith("COEFFICIENTS:")) {
+        	return chargerCoefficients(ligne.substring(13));
+        }
+        if (ligne.startsWith("RACINES:")) {
+        	return chargerRacines(ligne.substring(8));
+        }
         throw new IllegalArgumentException("Format de fichier non reconnu ou corrompu.");
     }
 
@@ -136,7 +142,9 @@ public class PolynomeIO {
         List<Monome> monomes = new ArrayList<>();
         for (int i = 0; i < parts.length; i++) {
             double c = Double.parseDouble(parts[i].trim());
-            if (c != 0.0) monomes.add(new Monome(c, i));
+            if (c != 0.0) {
+            	monomes.add(new Monome(c, i));
+            }
         }
         return new Polynome(monomes);
     }

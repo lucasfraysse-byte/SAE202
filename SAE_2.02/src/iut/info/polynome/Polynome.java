@@ -91,7 +91,7 @@ public class Polynome {
      * @param y tableau des ordonnées (même taille que x)
      * @return polynôme d'interpolation
      * @throws IllegalArgumentException si les tableaux sont null, vides, de tailles différentes,
-     *                                  ou si deux abscisses sont égales
+     * ou si deux abscisses sont égales
      */
     public static Polynome interpoler(double[] x, double[] y) {
         if (x == null || y == null || x.length != y.length || x.length == 0) {
@@ -158,9 +158,9 @@ public class Polynome {
     /**
      * Retourne un tableau dense des coefficients, indexé par exposant croissant.
      *
-     * <p>Le tableau a une taille de {@code degré + 1} ; les exposants absents valent {@code 0.0}.</p>
+     * <p>Le tableau a une taille de degré + 1 ; les exposants absents valent 0.0.</p>
      *
-     * @return tableau {@code double[]} de taille {@code max(1, degré + 1)}
+     * @return tableau de taille max(1, degré + 1)
      */
     public double[] getCoefficients() {
         int degre = Math.max(0, getDegre());
@@ -194,7 +194,7 @@ public class Polynome {
 
 
     /**
-     * Retourne la somme {@code this + autre}.
+     * Retourne la somme this + autre
      *
      * @param autre polynôme à additionner (non null)
      * @return nouveau polynôme somme
@@ -211,7 +211,7 @@ public class Polynome {
     }
 
     /**
-     * Retourne le produit {@code this * autre}.
+     * Retourne le produit this * autre
      *
      * @param autre polynôme à multiplier (non null)
      * @return nouveau polynôme produit (polynôme nul si l'un des opérandes est nul)
@@ -251,16 +251,18 @@ public class Polynome {
     }
 
     /**
-     * Effectue la division euclidienne {@code this ÷ diviseur}.
+     * Effectue la division euclidienne this ÷ diviseur
      *
-     * <p>Garantie : this == diviseur * Q + R} avec deg(R) < deg(diviseur).</p>
+     * <p>Garantie : this == diviseur * Q + R avec deg(R) &lt; deg(diviseur).</p>
      *
      * @param diviseur polynôme diviseur (non null, non nul)
      * @return DivisionEuclidienneResultat contenant le quotient et le reste
      * @throws IllegalArgumentException si diviseur est null ou est le polynôme nul
      */
     public DivisionEuclidienneResultat diviser(Polynome diviseur) {
-        if (diviseur == null || diviseur.estNul()) throw new IllegalArgumentException("Division par le polynôme nul impossible.");
+        if (diviseur == null || diviseur.estNul()) {
+        	throw new IllegalArgumentException("Division par le polynôme nul impossible.");
+        }
         List<Monome> termesQuotient = new ArrayList<>();
         Polynome dividendeCourant = this;
         int degreDiviseur = diviseur.getDegre();
@@ -291,7 +293,9 @@ public class Polynome {
      * @return P(x)
      */
     public double evaluer(double x) {
-        if (estNul()) return 0.0;
+        if (estNul()) {
+        	return 0.0;
+        }
         double resultat = 0.0;
         int degreCourant = getDegre();
         int indiceCourant = 0;
@@ -318,7 +322,9 @@ public class Polynome {
     public Polynome deriver() {
         List<Monome> termesDerivee = new ArrayList<>();
         for (Monome monome : termes) {
-            if (monome.getExposant() != 0) termesDerivee.add(monome.deriver());
+            if (monome.getExposant() != 0) {
+            	termesDerivee.add(monome.deriver());
+            }
         }
         return new Polynome(termesDerivee);
     }
@@ -332,7 +338,9 @@ public class Polynome {
      */
     public Polynome integrer() {
         List<Monome> termesPrimitive = new ArrayList<>(termes.size());
-        for (Monome monome : termes) termesPrimitive.add(monome.integrer());
+        for (Monome monome : termes) {
+        	termesPrimitive.add(monome.integrer());
+        }
         return new Polynome(termesPrimitive);
     }
 
@@ -347,7 +355,9 @@ public class Polynome {
      * @throws IllegalArgumentException si a == b
      */
     public double valeurMoyenne(double a, double b) {
-        if (a == b) throw new IllegalArgumentException("L'intervalle doit être non nul.");
+        if (a == b) {
+        	throw new IllegalArgumentException("L'intervalle doit être non nul.");
+        }
         Polynome primitive = this.integrer();
         return (primitive.evaluer(b) - primitive.evaluer(a)) / (b - a);
     }
@@ -358,10 +368,12 @@ public class Polynome {
      * <p>Déterminée par le signe du coefficient dominant et la parité du degré.</p>
      *
      * @return Double POSITIVE_INFINITY ou Double NEGATIVE_INFINITY,
-     *         ou 0.0 si le polynôme est nul
+     * ou 0.0 si le polynôme est nul
      */
     public double getLimiteEnPlusInfini() {
-        if (estNul()) return 0.0;
+        if (estNul()) {
+        	return 0.0;
+        }
         Monome termeDominant = termes.get(0);
         return termeDominant.getCoefficient() > 0 ? Double.POSITIVE_INFINITY : Double.NEGATIVE_INFINITY;
     }
@@ -372,10 +384,12 @@ public class Polynome {
      * <p>Égale à la limite en +∞ si le degré est pair, opposée si impair.</p>
      *
      * @return Double POSITIVE_INFINITY ou Double NEGATIVE_INFINITY,
-     *         ou 0.0 si le polynôme est nul
+     * ou 0.0 si le polynôme est nul
      */
     public double getLimiteEnMoinsInfini() {
-        if (estNul()) return 0.0;
+        if (estNul()) {
+        	return 0.0;
+        }
         double limitePlusInfini = getLimiteEnPlusInfini();
         boolean degrePair = termes.get(0).getExposant() % 2 == 0;
         return degrePair ? limitePlusInfini : -limitePlusInfini;
@@ -395,20 +409,25 @@ public class Polynome {
         List<Polynome> suite = new ArrayList<>();
         suite.add(this);
         Polynome derivee = this.deriver();
-        if (derivee.estNul()) return suite;
+        if (derivee.estNul()) {
+            return suite;
+        }
         suite.add(derivee);
 
         Polynome precedent = this;
         Polynome courant = derivee;
+        
+        Polynome reste = precedent.diviser(courant).getReste();
 
-        while (true) {
-            Polynome reste = precedent.diviser(courant).getReste();
-            if (reste.estNul()) break;
+        while (!reste.estNul()) {
             Polynome suivant = reste.multiplierParScalaire(-1.0);
             suite.add(suivant);
+            
             precedent = courant;
             courant = suivant;
+            reste = precedent.diviser(courant).getReste();
         }
+        
         return suite;
     }
 
@@ -431,14 +450,16 @@ public class Polynome {
      * <p>L'algorithme utilise la borne de Cauchy pour définir l'intervalle initial,
      * puis applique Sturm pour isoler chaque racine et la raffiner :</p>
      * <ul>
-     *   <li>racine simple (changement de signe) : bissection (60 itérations, précision ~1e-18)</li>
-     *   <li>racine de multiplicité paire : méthode de Newton depuis le milieu de l'intervalle</li>
+     * <li>racine simple (changement de signe) : bissection (60 itérations, précision ~1e-18)</li>
+     * <li>racine de multiplicité paire : méthode de Newton depuis le milieu de l'intervalle</li>
      * </ul>
      *
      * @return liste des racines triées par ordre croissant d'abscisse (vide si aucune)
      */
     public List<Double> getRacinesReelles() {
-        if (estNul() || getDegre() == 0) return new ArrayList<>();
+        if (estNul() || getDegre() == 0) {
+        	return new ArrayList<>();
+        }
         double borneMaximale = borneCauchy();
         List<Double> racines = new ArrayList<>();
         isolerRacines(-borneMaximale, borneMaximale, racines);
@@ -449,8 +470,8 @@ public class Polynome {
      * Retourne les multiplicités de chaque racine réelle distincte.
      *
      * <p>Chaque élément du tableau est {racine, multiplicité}.
-     * La multiplicité de {@code r} est le plus petit entier  k >= 1 tel que
-     * {@code P^(k)(r) != 0} (première dérivée non nulle en r).</p>
+     * La multiplicité de r est le plus petit entier  k >= 1 tel que
+     * P^(k)(r) != 0 (première dérivée non nulle en r).</p>
      *
      * @return liste de paires [racine, multiplicité], dans l'ordre des racines
      */
@@ -469,8 +490,11 @@ public class Polynome {
     }
 
     /**
-     * Borne de Cauchy : toutes les racines réelles sont dans [-M, M]
-     * avec M = 1 + max(|ai|) / |an|.
+     * Calcule la borne de Cauchy M telle que toutes les racines réelles 
+     * du polynôme sont contenues dans l'intervalle [-M, M].
+     * Formule : M = 1 + (max(|a_i|) / |a_n|)
+     *
+     * @return la borne de Cauchy calculée (M)
      */
     private double borneCauchy() {
         double coefficientDominant = Math.abs(termes.get(0).getCoefficient());
@@ -488,7 +512,9 @@ public class Polynome {
      */
     private void isolerRacines(double a, double b, List<Double> racines) {
         int nombreRacines = getNombreRacinesReelles(a, b);
-        if (nombreRacines == 0) return;
+        if (nombreRacines == 0) {
+        	return;
+        }
         if (nombreRacines == 1) {
             racines.add(trouverRacine(a, b));
             return;
@@ -499,24 +525,39 @@ public class Polynome {
     }
 
     /**
-     * Trouve la racine unique dans [a, b].
-     * Utilise la bissection si f change de signe, Newton sinon (racine de multiplicité paire).
+     * Trouve la racine unique dans l'intervalle [a, b].
+     * <p>Utilise la méthode de la bissection (dichotomie) si la fonction change de signe,
+     * ou la méthode de Newton (depuis le milieu) sinon (cas d'une racine de multiplicité paire).</p>
+     *
+     * @param a la borne inférieure de l'intervalle
+     * @param b la borne supérieure de l'intervalle
+     * @return une approximation de la racine
      */
-    private double trouverRacine(double a, double b) {
+    public double trouverRacine(double a, double b) {
         if (evaluer(a) * evaluer(b) < 0) {
             for (int i = 0; i < 60; i++) {
                 double milieu = (a + b) / 2.0;
-                if (evaluer(a) * evaluer(milieu) <= 0) b = milieu; else a = milieu;
+                if (evaluer(a) * evaluer(milieu) <= 0) {
+                    b = milieu; 
+                } else {
+                    a = milieu;
+                }
             }
             return (a + b) / 2.0;
         }
+        
         // Racine de multiplicité paire : Newton depuis le milieu
         double x = (a + b) / 2.0;
         Polynome derivee = deriver();
-        for (int i = 0; i < 60; i++) {
+        boolean precisionAtteinte = false;
+        
+        for (int i = 0; i < 60 && !precisionAtteinte; i++) {
             double valeurDerivee = derivee.evaluer(x);
-            if (Math.abs(valeurDerivee) < EPSILON) break;
-            x -= evaluer(x) / valeurDerivee;
+            if (Math.abs(valeurDerivee) < EPSILON) {
+                precisionAtteinte = true;
+            } else {
+                x -= evaluer(x) / valeurDerivee;
+            }
         }
         return x;
     }
@@ -527,7 +568,9 @@ public class Polynome {
         for (Polynome polynome : suite) {
             double valeurCourante = polynome.evaluer(x);
             if (Math.abs(valeurCourante) > EPSILON) {
-                if (valeurPrecedente != null && valeurPrecedente * valeurCourante < 0) nombreVariations++;
+                if (valeurPrecedente != null && valeurPrecedente * valeurCourante < 0) {
+                	nombreVariations++;
+                }
                 valeurPrecedente = valeurCourante;
             }
         }
@@ -544,13 +587,17 @@ public class Polynome {
      */
     @Override
     public String toString() {
-        if (termes.isEmpty()) return "0";
+        if (termes.isEmpty()) {
+        	return "0";
+        }
         StringBuilder chaine = new StringBuilder();
         for (int i = 0; i < termes.size(); i++) {
             Monome monome = termes.get(i);
             double coefficient = monome.getCoefficient();
             if (i == 0) {
-                if (coefficient < 0) chaine.append("-");
+                if (coefficient < 0) {
+                	chaine.append("-");
+                }
             } else {
                 chaine.append(coefficient < 0 ? " - " : " + ");
             }
@@ -560,13 +607,17 @@ public class Polynome {
     }
 
     private static String formatTerme(double coefficientAbsolu, int exposant) {
-        if (exposant == 0) return formatNombre(coefficientAbsolu);
+        if (exposant == 0) {
+        	return formatNombre(coefficientAbsolu);
+        }
         String partieVariable = (exposant == 1) ? "x" : "x^" + exposant;
         return (coefficientAbsolu == 1.0) ? partieVariable : formatNombre(coefficientAbsolu) + partieVariable;
     }
 
     private static String formatNombre(double valeur) {
-        if (valeur == Math.floor(valeur) && !Double.isInfinite(valeur)) return String.valueOf((long) valeur);
+        if (valeur == Math.floor(valeur) && !Double.isInfinite(valeur)) {
+        	return String.valueOf((long) valeur);
+        }
         return String.valueOf(valeur);
     }
 
@@ -575,9 +626,9 @@ public class Polynome {
      *
      * <p>Formats acceptés pour chaque terme (insensible à la casse, espaces ignorés) :</p>
      * <ul>
-     *   <li>[c]x^n ex : "3x^2", "-x^3"</li>
-     *   <li>[c]x   ex : "2x", "-x"</li>
-     *   <li> c     ex : "5", "-3.14"</li>
+     * <li>[c]x^n ex : "3x^2", "-x^3"</li>
+     * <li>[c]x   ex : "2x", "-x"</li>
+     * <li> c     ex : "5", "-3.14"</li>
      * </ul>
      *
      * @param expression expression textuelle du polynôme (non null, non vide)
@@ -585,27 +636,35 @@ public class Polynome {
      * @throws IllegalArgumentException si l'expression est null, vide ou contient un terme invalide
      */
     public static Polynome parser(String expression) {
-        if (expression == null || expression.isBlank()) throw new IllegalArgumentException("L'expression est invalide.");
+        if (expression == null || expression.isBlank()) {
+        	throw new IllegalArgumentException("L'expression est invalide.");
+        }
         String normalized = expression.replaceAll("\\s+", "").toLowerCase()
                                       .replaceAll("(?<=[\\dx])-", "+-");
         List<Monome> liste = new ArrayList<>();
         Scanner sc = new Scanner(normalized).useDelimiter("\\+");
         while (sc.hasNext()) {
             String terme = sc.next();
-            if (!terme.isEmpty()) liste.add(parserTerme(terme));
+            if (!terme.isEmpty()) {
+            	liste.add(parserTerme(terme));
+            }
         }
         sc.close();
         return new Polynome(liste);
     }
 
-    private static Monome parserTerme(String terme) {
+	private static Monome parserTerme(String terme) {
         int idxX = terme.indexOf('x');
         if (idxX == -1) {
             Scanner sc = new Scanner(terme).useLocale(Locale.ENGLISH);
-            if (!sc.hasNextDouble()) throw new IllegalArgumentException("Terme invalide : '" + terme + "'");
+            if (!sc.hasNextDouble()) {
+            	throw new IllegalArgumentException("Terme invalide : '" + terme + "'");
+            }
             double valeur = sc.nextDouble();
             sc.close();
-            if (valeur == 0.0) throw new IllegalArgumentException("Coefficient nul ignoré.");
+            if (valeur == 0.0) {
+            	throw new IllegalArgumentException("Coefficient nul ignoré.");
+            }
             return new Monome(valeur, 0);
         }
         String coeffPart = terme.substring(0, idxX);
@@ -617,7 +676,9 @@ public class Polynome {
             coeff = -1.0;
         } else {
             Scanner sc = new Scanner(coeffPart).useLocale(Locale.ENGLISH);
-            if (!sc.hasNextDouble()) throw new IllegalArgumentException("Coefficient invalide : '" + coeffPart + "'");
+            if (!sc.hasNextDouble()) {
+            	throw new IllegalArgumentException("Coefficient invalide : '" + coeffPart + "'");
+            }
             coeff = sc.nextDouble();
             sc.close();
         }
@@ -626,7 +687,9 @@ public class Polynome {
             exposant = 1;
         } else if (expPart.startsWith("^")) {
             Scanner sc = new Scanner(expPart.substring(1));
-            if (!sc.hasNextInt()) throw new IllegalArgumentException("Exposant invalide : '" + expPart + "'");
+            if (!sc.hasNextInt()) {
+            	throw new IllegalArgumentException("Exposant invalide : '" + expPart + "'");
+            }
             exposant = sc.nextInt();
             sc.close();
         } else {
