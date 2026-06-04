@@ -68,7 +68,9 @@ public class Polynome {
      * @throws IllegalArgumentException si coeffDominant == 0
      */
     public Polynome(double[] racines, int[] multiplicites, double coeffDominant) {
-        if (coeffDominant == 0.0) throw new IllegalArgumentException("Le coefficient dominant ne peut être nul.");
+        if (coeffDominant == 0.0) {
+        	throw new IllegalArgumentException("Le coefficient dominant ne peut être nul.");
+        }
         Polynome produit = new Polynome(List.of(new Monome(coeffDominant, 0)));
         for (int i = 0; i < racines.length; i++) {
             Polynome facteur = new Polynome(List.of(new Monome(1.0, 1), new Monome(-racines[i], 0)));
@@ -101,7 +103,9 @@ public class Polynome {
         for (int i = 0; i < nombrePoints; i++) {
             Polynome polynomeLagrange = new Polynome(List.of(new Monome(1.0, 0)));
             for (int j = 0; j < nombrePoints; j++) {
-                if (i == j) continue;
+                if (i == j) {
+                	continue;
+                }
                 double ecart = x[i] - x[j];
                 if (Math.abs(ecart) < EPSILON) {
                     throw new IllegalArgumentException("Les abscisses doivent toutes être distinctes.");
@@ -119,7 +123,9 @@ public class Polynome {
 
     private static int chercherExposant(List<Monome> liste, int exposant) {
         for (int i = 0; i < liste.size(); i++) {
-            if (liste.get(i).getExposant() == exposant) return i;
+            if (liste.get(i).getExposant() == exposant) {
+            	return i;
+            }
         }
         return -1;
     }
@@ -142,7 +148,9 @@ public class Polynome {
      */
     public double getCoefficient(int exposant) {
         for (Monome monome : termes) {
-            if (monome.getExposant() == exposant) return monome.getCoefficient();
+            if (monome.getExposant() == exposant) {
+            	return monome.getCoefficient();
+            }
         }
         return 0.0;
     }
@@ -159,7 +167,9 @@ public class Polynome {
         double[] coefficients = new double[degre + 1];
         for (Monome monome : termes) {
             int exp = monome.getExposant();
-            if (exp >= 0) coefficients[exp] = monome.getCoefficient();
+            if (exp >= 0) {
+            	coefficients[exp] = monome.getCoefficient();
+            }
         }
         return coefficients;
     }
@@ -169,14 +179,18 @@ public class Polynome {
      *
      * @return liste non modifiable de Monome
      */
-    public List<Monome> getTermes() { return termes; }
+    public List<Monome> getTermes() { 
+    	return termes; 
+    }
 
     /**
      * Indique si ce polynôme est le polynôme nul (aucun terme non nul).
      *
      * @return true si nul
      */
-    public boolean estNul() { return termes.isEmpty(); }
+    public boolean estNul() { 
+    	return termes.isEmpty(); 
+    }
 
 
     /**
@@ -187,7 +201,9 @@ public class Polynome {
      * @throws IllegalArgumentException si autre est null
      */
     public Polynome additionner(Polynome autre) {
-        if (autre == null) throw new IllegalArgumentException("Le polynôme à additionner ne peut pas être null.");
+        if (autre == null) {
+        	throw new IllegalArgumentException("Le polynôme à additionner ne peut pas être null.");
+        }
         List<Monome> tousLesTermes = new ArrayList<>(this.termes.size() + autre.termes.size());
         tousLesTermes.addAll(this.termes);
         tousLesTermes.addAll(autre.termes);
@@ -202,8 +218,12 @@ public class Polynome {
      * @throws IllegalArgumentException si autre est null
      */
     public Polynome multiplier(Polynome autre) {
-        if (autre == null) throw new IllegalArgumentException("Le polynôme à multiplier ne peut pas être null.");
-        if (this.estNul() || autre.estNul()) return new Polynome(new ArrayList<>());
+        if (autre == null) {
+        	throw new IllegalArgumentException("Le polynôme à multiplier ne peut pas être null.");
+        }
+        if (this.estNul() || autre.estNul()) {
+        	return new Polynome(new ArrayList<>());
+        }
         List<Monome> produits = new ArrayList<>(this.termes.size() * autre.termes.size());
         for (Monome monomeCourant : this.termes) {
             for (Monome monomeAutre : autre.termes) {
@@ -220,9 +240,13 @@ public class Polynome {
      * @return nouveau polynôme (polynôme nul si |scalaire| &lt; EPSILON)
      */
     public Polynome multiplierParScalaire(double scalaire) {
-        if (Math.abs(scalaire) < EPSILON) return new Polynome(new ArrayList<>());
+        if (Math.abs(scalaire) < EPSILON) {
+        	return new Polynome(new ArrayList<>());
+        }
         List<Monome> nouveauxTermes = new ArrayList<>(termes.size());
-        for (Monome monome : termes) nouveauxTermes.add(monome.multiplierParScalaire(scalaire));
+        for (Monome monome : termes) {
+        	nouveauxTermes.add(monome.multiplierParScalaire(scalaire));
+        }
         return new Polynome(nouveauxTermes);
     }
 
